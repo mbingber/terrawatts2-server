@@ -1,0 +1,158 @@
+type Query {
+  getGame(id: ID!): Game
+  getCityCostHelper(mapName: String!, regions: [Int!]!): String!
+  fetchMap(mapName: String!, regions: [Int]): PopulatedMap!
+}
+
+type Mutation {
+  createGame(usernames: [String!]!, mapName: String!): Game!
+  putUpPlant(gameId: ID!, meId: ID!, plantInstanceId: ID, bid: Int): Game!
+  bidOnPlant(gameId: ID!, meId: ID!, bid: Int): Game!
+  buyResources(gameId: ID!, meId: ID!, resources: ResourcesInput!, cost: Int!): Game!
+  buyCities(gameId: ID!, meId: ID!, cityInstanceIds: [ID!]!, cost: Int!): Game!
+  powerUp(gameId: ID!, meId: ID!): Game!
+}
+
+type Game {
+  id: ID!
+  map: Map!
+  regions: [Int!]!
+  turn: Int!
+  era: Int!
+  phase: Phase!
+  actionType: ActionType!
+  playerOrder: [Player!]!
+  activePlayer: Player!
+  plants: [PlantInstance!]!
+  cities: [CityInstance!]!
+  resourceMarket: Resources!
+  auction: Auction
+}
+
+type Map {
+  id: ID!
+  name: String!
+}
+
+type PopulatedMap {
+  id: ID!
+  name: String!
+  cities: [City!]!
+  connections: [Connection!]!
+}
+
+type Player {
+  id: ID!
+  clockwiseOrder: Int!
+  user: User!
+  color: Color!
+  money: Int!
+  resources: Resources!
+}
+
+type User {
+  id: ID!
+  username: String!
+}
+
+type PlantInstance {
+  id: ID!
+  plant: Plant!
+  status: PlantStatus!
+  player: Player
+}
+
+type Plant {
+  id: ID!
+  rank: Int!
+  resourceType: PlantResourceType!
+  resourceBurn: Int!
+  numCities: Int!
+}
+
+type Resources {
+  coal: Int!
+  oil: Int!
+  trash: Int!
+  uranium: Int!
+}
+
+type CityInstance {
+  id: ID!
+  city: City!
+  players: [Player!]
+}
+
+type City {
+  id: ID!
+  name: String!
+  lat: Float
+  lng: Float
+  region: Int!
+  map: Map!
+}
+
+type Connection {
+  id: ID!
+  cost: Int!
+  cities: [City!]!
+}
+
+type Auction {
+  id: ID!
+  plant: PlantInstance!
+  bid: Int!
+  leadingPlayer: Player!
+  activePlayer: Player!
+  passedPlayers: [Player!]
+}
+
+input ResourcesInput {
+  coal: Int
+  oil: Int
+  trash: Int
+  uranium: Int
+}
+
+enum Phase {
+  PLANT
+  RESOURCE
+  CITY
+  POWER
+}
+
+enum ActionType {
+  PUT_UP_PLANT
+  DISCARD_PLANT
+  BID_ON_PLANT
+  BUY_RESOURCES
+  BUY_CITIES
+  POWER_UP
+}
+
+enum Color {
+  BLUE
+  RED
+  YELLOW
+  GREEN
+  PURPLE
+  BLACK
+}
+
+enum PlantStatus {
+  REMOVED_BEFORE_START
+  DECK
+  MARKET
+  DISCARDED
+  ERA_THREE
+  OWNED
+}
+
+enum PlantResourceType {
+  COAL
+  OIL
+  HYBRID
+  TRASH
+  URANIUM
+  WIND
+}

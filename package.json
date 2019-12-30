@@ -1,0 +1,26 @@
+{
+   "name": "terrawatts2-server",
+   "version": "0.0.1",
+   "description": "Awesome project developed with TypeORM.",
+   "devDependencies": {
+      "@types/node": "^8.0.29",
+      "dotenv": "^8.2.0",
+      "ts-node": "^3.3.0",
+      "typescript": "^3.3.3333"
+   },
+   "dependencies": {
+      "apollo-server": "^2.9.15",
+      "axios": "^0.19.0",
+      "graphql": "^14.5.8",
+      "graphql-import": "^0.7.1",
+      "lodash.shuffle": "^4.2.0",
+      "pg": "^7.3.0",
+      "reflect-metadata": "^0.1.10",
+      "typeorm": "0.2.21"
+   },
+   "scripts": {
+      "start": "ts-node src/index.ts",
+      "migrate": "ts-node ./node_modules/.bin/typeorm migration:run",
+      "revert": "ts-node ./node_modules/.bin/typeorm migration:revert"
+   }
+}
