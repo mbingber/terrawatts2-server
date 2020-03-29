@@ -70,7 +70,8 @@ const resolvers = {
 
 const server = new ApolloServer({
   typeDefs: importSchema('src/schema.graphql'),
-  resolvers
+  resolvers,
+  playground: true
 });
 
 createConnection().then(async connection => {
