@@ -1,7 +1,7 @@
 {
    "name": "terrawatts2-server",
    "version": "0.0.1",
-   "description": "Awesome project developed with TypeORM.",
+   "description": "Terrawatts 2 GraphQL server",
    "dependencies": {
       "@types/node": "^8.0.29",
       "apollo-server": "^2.9.15",
@@ -12,10 +12,10 @@
       "lodash.shuffle": "^4.2.0",
       "pg": "^7.3.0",
       "pg-connection-string": "^2.2.0",
-      "ts-node": "^3.3.0",
       "reflect-metadata": "^0.1.10",
-      "typescript": "^3.3.3333",
-      "typeorm": "0.2.21"
+      "ts-node": "^3.3.0",
+      "typeorm": "0.2.21",
+      "typescript": "^3.3.3333"
    },
    "scripts": {
       "start": "ts-node src/index.ts",

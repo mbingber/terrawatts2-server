@@ -19,6 +19,8 @@ import { discardPlant } from './logic/discardPlant/discardPlant';
 
 const pubsub = new PubSub();
 
+console.log("does this code get run?");
+
 const resolvers = {
   Query: {
     getGame: (_, { id }) => findGameById(id),

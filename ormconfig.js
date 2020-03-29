@@ -16,6 +16,8 @@ if (isProd) {
    const databaseUrl = process.env.DATABASE_URL;
    const connectionOptions = parse(databaseUrl);
 
+   console.log("ORMCONFIG:", connectionOptions);
+
    connectionObj.name = connectionOptions.name;
    connectionObj.host = connectionOptions.host;
    connectionObj.post = connectionOptions.port;
