@@ -19,8 +19,6 @@ import { discardPlant } from './logic/discardPlant/discardPlant';
 
 const pubsub = new PubSub();
 
-console.log("does this code get run?");
-
 const resolvers = {
   Query: {
     getGame: (_, { id }) => findGameById(id),
@@ -71,7 +69,8 @@ const resolvers = {
 const server = new ApolloServer({
   typeDefs: importSchema('src/schema.graphql'),
   resolvers,
-  playground: true
+  playground: true,
+  introspection: true
 });
 
 createConnection().then(async connection => {
