@@ -19,7 +19,7 @@ if (isProd) {
    connectionObj.name = connectionOptions.name;
    connectionObj.host = connectionOptions.host;
    connectionObj.post = connectionOptions.port;
-   connectionObj.username = connectionOptions.username;
+   connectionObj.username = connectionOptions.user;
    connectionObj.password = connectionOptions.password;
    connectionObj.database = connectionOptions.database;
    connectionObj.extra = {
