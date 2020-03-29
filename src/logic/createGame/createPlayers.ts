@@ -30,7 +30,7 @@ export const createPlayers = async (
     [Color.BLUE]: true
   };
 
-  // shuffle here for clockwise order
+  // shuffle here for initial turn order, clockwise order
   const players: Player[] = shuffle(users)
     .map((user: User, idx: number): Player => {
       const player = new Player();
@@ -43,6 +43,7 @@ export const createPlayers = async (
       colorHash[player.color] = false;
 
       player.clockwiseOrder = idx;
+      player.turnOrder = idx;
       player.user = user;
       player.money = 50;
       player.resources = {
@@ -57,6 +58,5 @@ export const createPlayers = async (
 
   await playerRepository.save(players);
 
-  // shuffle here for initial turn order
-  return shuffle(players);
+  return players;
 }

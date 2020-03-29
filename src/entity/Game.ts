@@ -50,7 +50,7 @@ export class Game {
   @ManyToOne(() => Map)
   map: Map;
 
-  @OneToMany(() => Player, player => player.game)
+  @OneToMany(() => Player, player => player.game, { cascade: true })
   playerOrder: Player[];
 
   @OneToOne(() => Player)
@@ -65,6 +65,9 @@ export class Game {
 
   @OneToMany(() => PlantPhaseEvent, event => event.game, { cascade: true })
   plantPhaseEvents: PlantPhaseEvent[];
+
+  @Column({ default: 0 })
+  plantRankBought: number;
 
   @OneToOne(() => Auction, { cascade: true })
   @JoinColumn()

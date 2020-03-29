@@ -31,4 +31,10 @@ export class Player {
   @Column(() => Resources)
   resources: Resources;
 
+  @Column({ default: 0 })
+  turnOrder: number;
+
+  @Column({ default: 0 })
+  numPowered: number;
+
 }

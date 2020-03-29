@@ -1,16 +1,16 @@
-import { getRepository } from "typeorm";
 import { Game, Phase, ActionType } from "../../entity/Game";
 import { findGameById } from "../../queries/findGameById";
 import { getNextAuctionBidder, isAuctionOver } from "../utils/auctionHelpers";
 import { obtainPlant } from "../utils/plantHelpers";
+import { saveGame } from "../utils/saveGame";
+import { PubSub } from "apollo-server";
 
 export const bidOnPlant = async (
   gameId: number,
   meId: number,
-  bid: number
+  bid: number,
+  pubsub: PubSub
 ): Promise<Game> => {
-  const gameRepository = getRepository(Game);
-
   const game = await findGameById(gameId);
   
   if (!game) {
@@ -33,7 +33,7 @@ export const bidOnPlant = async (
     throw new Error("ERROR: incorrect actionType");
   }
 
-  if (bid <= game.auction.bid) {
+  if (bid !== null && bid <= game.auction.bid) {
     throw new Error("ERROR: bid too low");
   }
 
@@ -44,20 +44,19 @@ export const bidOnPlant = async (
   if (bid) {
     game.auction.bid = bid;
     game.auction.leadingPlayer = game.auction.activePlayer;
+    game.auction.activePlayer = getNextAuctionBidder(game, game.auction.activePlayer);
   } else {
     // handle pass
-    game.auction.passedPlayers = [...game.auction.passedPlayers, game.auction.activePlayer]
+    const passer = game.auction.activePlayer;
+    game.auction.activePlayer = getNextAuctionBidder(game, passer);
+    game.auction.passedPlayers = [...game.auction.passedPlayers, passer]
 
     if (isAuctionOver(game)) {
-      await obtainPlant(game, game.auction.plant, game.auction.leadingPlayer, game.auction.bid);
+      const plantInstance = game.plants.find((p) => p.id === game.auction.plant.id);
+      obtainPlant(game, plantInstance, game.auction.leadingPlayer, game.auction.bid);
       game.auction = null;
     }
   }
-
-  if (game.auction) {
-    game.auction.activePlayer = getNextAuctionBidder(game, game.auction.activePlayer);
-  }
-
-  // TODO: abstract "save game" function
-  return gameRepository.save(game);
+  
+  return saveGame(game, pubsub);
 };

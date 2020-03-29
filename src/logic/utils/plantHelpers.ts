@@ -1,9 +1,9 @@
-import { getRepository } from "typeorm"
 import { Player } from "../../entity/Player"
 import { PlantInstance, PlantStatus } from "../../entity/PlantInstance";
 import { Game, ActionType, Phase } from "../../entity/Game";
 import { PlantPhaseEvent } from "../../entity/PlantPhaseEvent";
 import { getTurnOrder } from "./getTurnOrder";
+import { savePlayer } from "./savePlayer";
 
 export const getAvailablePlants = (game: Game): PlantInstance[] => game
   .plants
@@ -13,13 +13,13 @@ export const getAvailablePlants = (game: Game): PlantInstance[] => game
 
 export const getNextPlayerInPlantPhase = (game: Game): Player => game
   .playerOrder
-  .find((player) => game.plantPhaseEvents.every(p => p.id !== player.id));
+  .find((player) => game.plantPhaseEvents.every(p => p.player.id !== player.id));
 
 export const recordPlantPhaseEvent = (game: Game, plantInstance: PlantInstance): void => {
   const event = new PlantPhaseEvent();
   event.game = game;
   event.turn = game.turn;
-  event.player = game.activePlayer;
+  event.player = game.auction ? game.auction.leadingPlayer : game.activePlayer;
   event.plant = plantInstance;
 
   if (game.plantPhaseEvents) {
@@ -29,15 +29,35 @@ export const recordPlantPhaseEvent = (game: Game, plantInstance: PlantInstance):
   }
 };
 
+export const startEra3 = (game: Game): void => {
+  game.plants.forEach((plantInstance) => {
+    if (plantInstance.status === PlantStatus.ERA_THREE) {
+      plantInstance.status = PlantStatus.DECK;
+    }
+  });
+  
+  if (game.phase === Phase.CITY) {
+    discardLowestPlant(game, true);
+  }
+  
+  if (game.phase === Phase.POWER) {
+    discardLowestPlant(game, true);
+    game.era = 3;
+  }
+}
+
 export const drawPlantFromDeck = (game: Game): void => {
   if (game.turn === 1 && (!game.plantPhaseEvents || game.plantPhaseEvents.length === 0)) {
     const thirteen = game.plants.find(p => p.plant.rank === 13);
     thirteen.status = PlantStatus.MARKET;
   } else {
-    // TODO: maybe start phase 3
     const deck = game.plants.filter(p => p.status === PlantStatus.DECK);
-    const randomPlant = deck[Math.floor(Math.random() * deck.length)];
-    randomPlant.status = PlantStatus.MARKET;
+    if (deck.length === 0 && game.era !== 3) {
+      startEra3(game);
+    } else if (deck.length > 0) {
+      const randomPlant = deck[Math.floor(Math.random() * deck.length)];
+      randomPlant.status = PlantStatus.MARKET;
+    }
   }
 }
 
@@ -56,6 +76,27 @@ export const mustDiscardPlant = (game: Game): boolean => {
   return ownedPlants.length > maxPlants;
 };
 
+export const discardLowestPlant = (game: Game, suppressDraw: boolean = false): void => {
+  const lowestPlant = game.plants
+    .filter(p => p.status === PlantStatus.MARKET)
+    .reduce<PlantInstance>((acc, p) => acc && acc.plant.rank < p.plant.rank ? acc : p, null);
+
+  lowestPlant.status = PlantStatus.DISCARDED;
+
+  if (!suppressDraw) {
+    drawPlantFromDeck(game);
+  }
+}
+
+export const moveHighestPlantToEra3 = (game: Game): void => {
+  const highestPlant = game.plants
+    .filter(p => p.status === PlantStatus.MARKET)
+    .reduce<PlantInstance>((acc, p) => acc && acc.plant.rank > p.plant.rank ? acc : p, null);
+
+  highestPlant.status = PlantStatus.ERA_THREE;
+  drawPlantFromDeck(game);
+}
+
 export const startResourcePhase = (game: Game): void => {
   if (game.turn === 1) {
     // recalc turn order on the first turn
@@ -63,13 +104,12 @@ export const startResourcePhase = (game: Game): void => {
   }
 
   if (game.plantPhaseEvents.every(event => !event.plant)) {
-    // discard lowest plant from market
-    const lowestPlant = game.plants
-      .filter(p => p.status === PlantStatus.MARKET)
-      .reduce<PlantInstance>((acc, p) => acc && acc.plant.rank < p.plant.rank ? acc : p, null);
-    
-    lowestPlant.status = PlantStatus.DISCARDED;
-    drawPlantFromDeck(game);
+    discardLowestPlant(game);
+  }
+
+  if (getMarketLength(game) === 7) {
+    discardLowestPlant(game, true);
+    game.era = 3;
   }
 
   game.phase = Phase.RESOURCE;
@@ -77,32 +117,48 @@ export const startResourcePhase = (game: Game): void => {
   game.actionType = ActionType.BUY_RESOURCES;
 };
 
-export const obtainPlant = async (
+export const obtainPlant = (
   game: Game,
   plantInstance: PlantInstance,
   player: Player,
   cost: number
 ) => {
-  const playerRepository = getRepository(Player);
-
   // give the plant to the player
   plantInstance.status = PlantStatus.OWNED;
-  plantInstance.player = game.activePlayer;
+  plantInstance.player = player;
   
   player.money -= cost;
-  await playerRepository.save(player);
+  savePlayer(player, game);
   
-  recordPlantPhaseEvent(game, plantInstance);
-
   drawPlantFromDeck(game);
+  recordPlantPhaseEvent(game, plantInstance);
   
   // advance to next action
   if (mustDiscardPlant(game)) {
     game.actionType = ActionType.DISCARD_PLANT;
+    game.activePlayer = player;
+    game.plantRankBought = plantInstance.plant.rank;
   } else if (game.plantPhaseEvents.length < game.playerOrder.length) {
     game.actionType = ActionType.PUT_UP_PLANT;
     game.activePlayer = getNextPlayerInPlantPhase(game);
   } else {
     startResourcePhase(game);
   }
+}
+
+export const getMarketLength = (game: Game): number => {
+  return game.plants.filter((plant) => plant.status === PlantStatus.MARKET).length;
+}
+
+export const getLowestRankInMarket = (game: Game): number => {
+  const market = game
+    .plants
+    .filter((plant) => plant.status === PlantStatus.MARKET)
+    .sort((a, b) => a.plant.rank - b.plant.rank);
+
+  if (market.length === 0) {
+    return Infinity;
+  }
+
+  return market[0].plant.rank;
 }

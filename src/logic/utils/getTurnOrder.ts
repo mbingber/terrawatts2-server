@@ -19,13 +19,17 @@ export const getTurnOrder = (game: Game): Player[] => (
     const numCitiesB = getNumCities(game.cities, playerB);
 
     if (numCitiesA > numCitiesB) {
-      return 1;
-    }
-
-    if (numCitiesA < numCitiesB) {
       return -1;
     }
 
-    return getHighestPlant(game.plants, playerA) - getHighestPlant(game.plants, playerB);
+    if (numCitiesA < numCitiesB) {
+      return 1;
+    }
+
+    return getHighestPlant(game.plants, playerB) - getHighestPlant(game.plants, playerA);
   })
-)
+  .map((player, index) => ({
+    ...player,
+    turnOrder: index
+  }))
+);

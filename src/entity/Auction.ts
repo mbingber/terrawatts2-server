@@ -12,7 +12,7 @@ export class Auction {
   @OneToOne(() => Game)
   game: Game;
 
-  @ManyToOne(() => PlantInstance)
+  @ManyToOne(() => PlantInstance, { cascade: true })
   plant: PlantInstance;
 
   @Column()

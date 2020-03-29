@@ -14,7 +14,6 @@ const amountToRemove: Record<number, number> = {
 export const createPlantInstances = async (
   numPlayers: number
 ): Promise<PlantInstance[]> => {
-  const plantInstanceRepository = getRepository(PlantInstance);
   const plantRepository = getRepository(Plant);
 
   const plants = await plantRepository.find();
@@ -37,8 +36,6 @@ export const createPlantInstances = async (
 
     return plantInstance;
   });
-
-  // await plantInstanceRepository.save(plantInstances);
 
   return plantInstances;
 }

@@ -1,18 +1,19 @@
-import { getRepository } from "typeorm";
 import { Game, Phase, ActionType } from "../../entity/Game";
 import { findGameById } from "../../queries/findGameById";
 import { PlantStatus } from "../../entity/PlantInstance";
 import { Auction } from "../../entity/Auction";
 import { getNextAuctionBidder } from "../utils/auctionHelpers";
 import { recordPlantPhaseEvent, startResourcePhase, getAvailablePlants, obtainPlant, getNextPlayerInPlantPhase } from "../utils/plantHelpers";
+import { saveGame } from "../utils/saveGame";
+import { PubSub } from "apollo-server";
 
 export const putUpPlant = async (
   gameId: number,
   meId: number,
   plantInstanceId: number,
-  bid: number
+  bid: number,
+  pubsub: PubSub
 ): Promise<Game> => {
-  const gameRepository = getRepository(Game);
   const game = await findGameById(gameId);
 
   // TODO: these first two validations are universal
@@ -36,7 +37,7 @@ export const putUpPlant = async (
     throw new Error("ERROR: auction in progress");
   }
 
-  if (game.plantPhaseEvents && game.plantPhaseEvents.some(event => event.player.id === meId)) {
+  if (game.plantPhaseEvents.some((event) => event.player.id === meId)) {
     throw new Error("ERROR: player already chose this plant phase");
   }
 
@@ -54,7 +55,7 @@ export const putUpPlant = async (
       game.activePlayer = getNextPlayerInPlantPhase(game);
     }
 
-    return gameRepository.save(game);;
+    return saveGame(game, pubsub);;
   }
 
   const plantInstance = game.plants.find((pi) => pi.id === plantInstanceId);
@@ -88,11 +89,10 @@ export const putUpPlant = async (
     auction.activePlayer = getNextAuctionBidder(game, game.activePlayer);
 
     game.auction = auction;
-    game.actionType = ActionType.BID_ON_PLANT; 
+    game.actionType = ActionType.BID_ON_PLANT;
   } else {
-    await obtainPlant(game, plantInstance, game.activePlayer, bid);
+    obtainPlant(game, plantInstance, game.activePlayer, bid);
   }
 
-  // TODO: abstract "save game" function
-  return gameRepository.save(game);
+  return saveGame(game, pubsub);
 };

@@ -2,6 +2,7 @@ import { Resources } from "../../entity/Resources";
 import { PlantResourceType } from "../../entity/Plant";
 import { Game } from "../../entity/Game";
 import { getOwnedPlantInstances } from "../utils/plantHelpers";
+import { Player } from "../../entity/Player";
 
 const getSingleResourceCost = (
   market: Resources,
@@ -18,12 +19,13 @@ const getSingleResourceCost = (
 
 export const getTotalResourceCost = (market: Resources, purchase: Resources) => {
   const marketCopy = { ...market };
+  const purchaseCopy = { ...purchase };
 
-  return Object.keys(purchase)
+  return Object.keys(purchaseCopy)
     .reduce<number>((cost, resourceType) => {
-      while (purchase[resourceType] > 0) {
+      while (purchaseCopy[resourceType] > 0) {
         cost += getSingleResourceCost(marketCopy, resourceType);
-        purchase[resourceType]--;
+        purchaseCopy[resourceType]--;
         marketCopy[resourceType]--;
       }
       
@@ -31,14 +33,17 @@ export const getTotalResourceCost = (market: Resources, purchase: Resources) => 
     }, 0)
 };
 
-export const canFitResources = (game: Game, purchase: Resources): boolean => {
-  const resourceCapacity = getOwnedPlantInstances(game, game.activePlayer)
+export const getResourceCapacity = (game: Game, player: Player): Record<PlantResourceType, number> => {
+  return getOwnedPlantInstances(game, player)
     .reduce((acc, plantInstance) => {
       const { resourceType, resourceBurn } = plantInstance.plant;
-      acc[resourceType] = acc[resourceType] || 0;
       acc[resourceType] += resourceBurn * 2;
       return acc;
-    }, {});
+    }, { COAL: 0, OIL: 0, TRASH: 0, URANIUM: 0, HYBRID: 0, WIND: 0 });
+}
+
+export const canFitResources = (game: Game, purchase: Resources): boolean => {
+  const resourceCapacity = getResourceCapacity(game, game.activePlayer);
   
   const resourcesAfterPurchase = Object.keys(game.activePlayer.resources)
     .reduce<Resources>((acc, r) => {

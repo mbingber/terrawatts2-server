@@ -2,15 +2,21 @@ type Query {
   getGame(id: ID!): Game
   getCityCostHelper(mapName: String!, regions: [Int!]!): String!
   fetchMap(mapName: String!, regions: [Int]): PopulatedMap!
+  getRevenues: [Int!]!
 }
 
 type Mutation {
   createGame(usernames: [String!]!, mapName: String!): Game!
   putUpPlant(gameId: ID!, meId: ID!, plantInstanceId: ID, bid: Int): Game!
   bidOnPlant(gameId: ID!, meId: ID!, bid: Int): Game!
+  discardPlant(gameId: ID!, meId: ID!, plantInstanceId: ID!, fossilFuelDiscard: HybridChoiceInput): Game!
   buyResources(gameId: ID!, meId: ID!, resources: ResourcesInput!, cost: Int!): Game!
   buyCities(gameId: ID!, meId: ID!, cityInstanceIds: [ID!]!, cost: Int!): Game!
-  powerUp(gameId: ID!, meId: ID!): Game!
+  powerUp(gameId: ID!, meId: ID!, plantInstanceIds: [ID!]!, hybridChoice: HybridChoiceInput): Game!
+}
+
+type Subscription {
+  gameUpdated(id: ID!): Game
 }
 
 type Game {
@@ -23,10 +29,22 @@ type Game {
   actionType: ActionType!
   playerOrder: [Player!]!
   activePlayer: Player!
+  plantMarket: [PlantInstance!]!
   plants: [PlantInstance!]!
+  plantPhaseEvents: [PlantPhaseEvent!]!
+  deckCount: Int!
   cities: [CityInstance!]!
   resourceMarket: Resources!
   auction: Auction
+  restockRates: RestockRates!
+  plantRankBought: Int!
+}
+
+type PlantPhaseEvent {
+  id: ID!
+  turn: Int!
+  player: Player!
+  plant: PlantInstance
 }
 
 type Map {
@@ -48,6 +66,7 @@ type Player {
   color: Color!
   money: Int!
   resources: Resources!
+  plants: [PlantInstance!]!
 }
 
 type User {
@@ -59,7 +78,6 @@ type PlantInstance {
   id: ID!
   plant: Plant!
   status: PlantStatus!
-  player: Player
 }
 
 type Plant {
@@ -86,8 +104,8 @@ type CityInstance {
 type City {
   id: ID!
   name: String!
-  lat: Float
-  lng: Float
+  lat: Float!
+  lng: Float!
   region: Int!
   map: Map!
 }
@@ -107,11 +125,22 @@ type Auction {
   passedPlayers: [Player!]
 }
 
+type RestockRates {
+  era1: Resources!
+  era2: Resources!
+  era3: Resources!
+}
+
 input ResourcesInput {
   coal: Int
   oil: Int
   trash: Int
   uranium: Int
+}
+
+input HybridChoiceInput {
+  coal: Int!
+  oil: Int!
 }
 
 enum Phase {

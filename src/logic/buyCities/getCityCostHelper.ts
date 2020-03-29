@@ -40,7 +40,7 @@ const getCheapestPaths = (
       unvisitedSet.delete(currentId);
     }
 
-    cheapestPaths[origin.id] = tentativeDistances
+    cheapestPaths[origin.id] = tentativeDistances;
   });
 
   return cheapestPaths;

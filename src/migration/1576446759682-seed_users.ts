@@ -13,6 +13,12 @@ const usersRaw = [{
 }, {
   username: 'wags',
   preferredColor: Color.PURPLE
+}, {
+  username: 'washington',
+  preferredColor: Color.BLACK
+}, {
+  username: 'a long name that will need to be truncated',
+  preferredColor: Color.RED
 }]
 
 export class seedUsers1576446759682 implements MigrationInterface {

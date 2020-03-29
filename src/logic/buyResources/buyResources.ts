@@ -1,19 +1,18 @@
-import { getRepository } from "typeorm";
 import { Game, Phase, ActionType } from "../../entity/Game";
 import { findGameById } from "../../queries/findGameById";
 import { Resources } from "../../entity/Resources";
 import { getTotalResourceCost, canFitResources } from "./resourceHelpers";
-import { Player } from "../../entity/Player";
+import { saveGame } from "../utils/saveGame";
+import { PubSub } from "apollo-server";
+import { savePlayer } from "../utils/savePlayer";
 
 export const buyResources = async (
   gameId: number,
   meId: number,
   resources: Resources,
-  cost: number
+  cost: number,
+  pubsub: PubSub
 ): Promise<Game> => {
-  const gameRepository = getRepository(Game);
-  const playerRepository = getRepository(Player);
-
   const game = await findGameById(gameId);
   
   if (!game) {
@@ -54,11 +53,11 @@ export const buyResources = async (
   Object.keys(resources)
     .forEach((resourceType) => {
       game.resourceMarket[resourceType] -= resources[resourceType];
-      game.activePlayer.resources += resources[resourceType];
+      game.activePlayer.resources[resourceType] += resources[resourceType];
     });
 
   game.activePlayer.money -= cost;
-  await playerRepository.save(game.activePlayer);
+  savePlayer(game.activePlayer, game);
 
   const activePlayerIdx = game.playerOrder.findIndex(player => player.id === game.activePlayer.id);
   if (activePlayerIdx === 0) {
@@ -71,5 +70,5 @@ export const buyResources = async (
     game.activePlayer = game.playerOrder[activePlayerIdx - 1];
   }
 
-  return gameRepository.save(game);
+  return saveGame(game, pubsub);
 };

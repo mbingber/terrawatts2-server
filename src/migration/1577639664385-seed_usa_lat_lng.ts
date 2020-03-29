@@ -23,8 +23,6 @@ export class seedUsaLatLng1577639664385 implements MigrationInterface {
           name: "USA"
         }
       });
-
-    console.log("!!!!!!! map", map);
     
     const cities = await queryRunner
       .manager
