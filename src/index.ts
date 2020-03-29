@@ -72,5 +72,5 @@ const server = new ApolloServer({
 });
 
 createConnection().then(async connection => {
-  server.listen().then(({ url }) => console.log(`Server is running on ${url}`));
+  server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => console.log(`Server is running on ${url}`));
 }).catch(error => console.log(error));
