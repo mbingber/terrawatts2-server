@@ -20,6 +20,7 @@
    "scripts": {
       "start": "ts-node src/index.ts",
       "migrate": "ts-node ./node_modules/.bin/typeorm migration:run",
-      "revert": "ts-node ./node_modules/.bin/typeorm migration:revert"
+      "revert": "ts-node ./node_modules/.bin/typeorm migration:revert",
+      "postdeploy": "yarn migrate"
    }
 }
