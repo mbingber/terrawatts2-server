@@ -2,6 +2,10 @@
    "name": "terrawatts2-server",
    "version": "0.0.1",
    "description": "Terrawatts 2 GraphQL server",
+   "engines": {
+      "node": "8.12.0",
+      "npm": "6.4.1"
+    },
    "dependencies": {
       "@types/node": "^8.0.29",
       "apollo-server": "^2.9.15",
@@ -21,7 +25,7 @@
       "typescript": "^3.3.3333"
    },
    "scripts": {
-      "start": "ts-node src/index.ts",
+      "start": "ts-node --optimize_for_size --max_old_space_size=460 src/index.ts",
       "migrate": "ts-node ./node_modules/.bin/typeorm migration:run",
       "revert": "ts-node ./node_modules/.bin/typeorm migration:revert",
       "heroku-postbuild": "yarn migrate"
