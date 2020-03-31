@@ -1,7 +1,6 @@
 import { Game, Phase, ActionType } from "../../entity/Game";
 import { findGameById } from "../../queries/findGameById";
 import { saveGame } from "../utils/saveGame";
-import { PubSub } from "apollo-server";
 import { PlantResourceType } from "../../entity/Plant";
 import { makeMoney } from "./makeMoney";
 import { endTurn } from "./endTurn";
@@ -10,8 +9,7 @@ export const powerUp = async(
   gameId: number,
   meId: number,
   plantInstanceIds: string[],
-  hybridChoice: { coal: number; oil: number },
-  pubsub: PubSub
+  hybridChoice: { coal: number; oil: number }
 ): Promise<Game> => {
   const game = await findGameById(gameId);
 
@@ -129,5 +127,5 @@ export const powerUp = async(
     game.activePlayer = game.playerOrder[activePlayerIdx + 1];
   }
 
-  return saveGame(game, pubsub)
+  return saveGame(game)
 }

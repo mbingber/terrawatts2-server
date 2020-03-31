@@ -5,14 +5,12 @@ import { Auction } from "../../entity/Auction";
 import { getNextAuctionBidder } from "../utils/auctionHelpers";
 import { recordPlantPhaseEvent, startResourcePhase, getAvailablePlants, obtainPlant, getNextPlayerInPlantPhase } from "../utils/plantHelpers";
 import { saveGame } from "../utils/saveGame";
-import { PubSub } from "apollo-server";
 
 export const putUpPlant = async (
   gameId: number,
   meId: number,
   plantInstanceId: number,
-  bid: number,
-  pubsub: PubSub
+  bid: number
 ): Promise<Game> => {
   const game = await findGameById(gameId);
 
@@ -55,7 +53,7 @@ export const putUpPlant = async (
       game.activePlayer = getNextPlayerInPlantPhase(game);
     }
 
-    return saveGame(game, pubsub);;
+    return saveGame(game);
   }
 
   const plantInstance = game.plants.find((pi) => pi.id === plantInstanceId);
@@ -94,5 +92,5 @@ export const putUpPlant = async (
     obtainPlant(game, plantInstance, game.activePlayer, bid);
   }
 
-  return saveGame(game, pubsub);
+  return saveGame(game);
 };

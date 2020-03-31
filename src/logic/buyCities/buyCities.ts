@@ -1,7 +1,6 @@
 import { Game, Phase, ActionType } from "../../entity/Game";
 import { findGameById } from "../../queries/findGameById";
 import { saveGame } from "../utils/saveGame";
-import { PubSub } from "apollo-server";
 import { savePlayer } from "../utils/savePlayer";
 import { cityCost } from "./cityHelpers";
 import { getMarketLength, getLowestRankInMarket, discardLowestPlant } from "../utils/plantHelpers";
@@ -11,7 +10,6 @@ export const buyCities = async (
   meId: number,
   cityInstanceIds: string[],
   cost: number,
-  pubsub: PubSub
 ): Promise<Game> => {
   const game = await findGameById(gameId);
   
@@ -100,5 +98,5 @@ export const buyCities = async (
     game.activePlayer = game.playerOrder[activePlayerIdx - 1];
   }
 
-  return saveGame(game, pubsub);
+  return saveGame(game);
 };

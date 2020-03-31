@@ -3,13 +3,11 @@ import { findGameById } from "../../queries/findGameById";
 import { getNextAuctionBidder, isAuctionOver } from "../utils/auctionHelpers";
 import { obtainPlant } from "../utils/plantHelpers";
 import { saveGame } from "../utils/saveGame";
-import { PubSub } from "apollo-server";
 
 export const bidOnPlant = async (
   gameId: number,
   meId: number,
-  bid: number,
-  pubsub: PubSub
+  bid: number
 ): Promise<Game> => {
   const game = await findGameById(gameId);
   
@@ -57,6 +55,6 @@ export const bidOnPlant = async (
       game.auction = null;
     }
   }
-  
-  return saveGame(game, pubsub);
+
+  return saveGame(game);
 };

@@ -3,7 +3,6 @@ import { findGameById } from "../../queries/findGameById";
 import { Resources } from "../../entity/Resources";
 import { getTotalResourceCost, canFitResources } from "./resourceHelpers";
 import { saveGame } from "../utils/saveGame";
-import { PubSub } from "apollo-server";
 import { savePlayer } from "../utils/savePlayer";
 
 export const buyResources = async (
@@ -11,7 +10,6 @@ export const buyResources = async (
   meId: number,
   resources: Resources,
   cost: number,
-  pubsub: PubSub
 ): Promise<Game> => {
   const game = await findGameById(gameId);
   
@@ -70,5 +68,5 @@ export const buyResources = async (
     game.activePlayer = game.playerOrder[activePlayerIdx - 1];
   }
 
-  return saveGame(game, pubsub);
+  return saveGame(game);
 };

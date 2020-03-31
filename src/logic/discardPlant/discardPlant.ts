@@ -1,7 +1,6 @@
 import { Game, Phase, ActionType } from "../../entity/Game";
 import { findGameById } from "../../queries/findGameById";
 import { saveGame } from "../utils/saveGame";
-import { PubSub } from "apollo-server";
 import { mustDiscardPlant, getNextPlayerInPlantPhase, startResourcePhase } from "../utils/plantHelpers";
 import { PlantStatus } from "../../entity/PlantInstance";
 import { getResourceCapacity } from "../buyResources/resourceHelpers";
@@ -11,7 +10,6 @@ export const discardPlant = async(
   meId: number,
   plantInstanceId: number,
   fossilFuelDiscard: { coal: number; oil: number; },
-  pubsub: PubSub
 ): Promise<Game> => {
   const game = await findGameById(gameId);
 
@@ -85,5 +83,5 @@ export const discardPlant = async(
     startResourcePhase(game);
   }
 
-  return saveGame(game, pubsub);
+  return saveGame(game);
 }
