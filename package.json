@@ -5,7 +5,7 @@
    "engines": {
       "node": "12.13.1",
       "npm": "6.12.1"
-    },
+   },
    "dependencies": {
       "@types/node": "^8.0.29",
       "apollo-server": "^2.9.15",
@@ -20,6 +20,7 @@
       "pg": "^7.3.0",
       "pg-connection-string": "^2.2.0",
       "reflect-metadata": "^0.1.10",
+      "rimraf": "^3.0.2",
       "ts-node": "^3.3.0",
       "typeorm": "0.2.21",
       "typescript": "^3.3.3333"
