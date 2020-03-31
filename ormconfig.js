@@ -1,6 +1,5 @@
 const dotenv = require("dotenv");
 const { parse } = require("pg-connection-string");
-const { join } = require("path");
 dotenv.config();
 
 const isProd = !!process.env.DATABASE_URL;
@@ -34,13 +33,13 @@ module.exports = {
    synchronize: true,
    logging: false,
    entities: [
-      join("**", "entity", '*.{ts,js}')
+      "build/entity/**/*.js"
    ],
    migrations: [
-      "src/migration/**/*.ts"
+      "build/migration/**/*.js"
    ],
    subscribers: [
-      "src/subscriber/**/*.ts"
+      "build/subscriber/**/*.js"
    ],
    cli: {
       "entitiesDir": "src/entity",
