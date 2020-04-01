@@ -29,7 +29,8 @@ export const discardPlant = async(
     throw new Error("ERROR: incorrect actionType");
   }
 
-  if (!mustDiscardPlant(game)) {
+  const me = game.playerOrder.find((p) => p.id === me.id);
+  if (!mustDiscardPlant(game, me)) {
     throw new Error("ERROR: no need to discard");
   }
 
@@ -47,7 +48,6 @@ export const discardPlant = async(
   plantInstance.player = null;
 
   // lose resources, if necessary
-  const me = game.playerOrder.find((player) => player.id === meId);
   const resourceCapacity = getResourceCapacity(game, me);
 
   me.resources.uranium = Math.min(me.resources.uranium, resourceCapacity.URANIUM);
