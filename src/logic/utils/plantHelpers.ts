@@ -69,9 +69,9 @@ export const getOwnedPlantInstances = (game: Game, player: Player): PlantInstanc
     plant.player.id === player.id
   ));
 
-export const mustDiscardPlant = (game: Game): boolean => {
+export const mustDiscardPlant = (game: Game, player: Player): boolean => {
   const maxPlants = game.playerOrder.length === 2 ? 4 : 3;
-  const ownedPlants = getOwnedPlantInstances(game, game.activePlayer);
+  const ownedPlants = getOwnedPlantInstances(game, player);
 
   return ownedPlants.length > maxPlants;
 };
@@ -134,7 +134,7 @@ export const obtainPlant = (
   recordPlantPhaseEvent(game, plantInstance);
   
   // advance to next action
-  if (mustDiscardPlant(game)) {
+  if (mustDiscardPlant(game, player)) {
     game.actionType = ActionType.DISCARD_PLANT;
     game.activePlayer = player;
     game.plantRankBought = plantInstance.plant.rank;
