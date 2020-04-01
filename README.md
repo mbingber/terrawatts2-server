@@ -1,7 +1,9 @@
-# Awesome Project Build with TypeORM
+Prereqs:
 
-Steps to run this project:
+node v12, yarn
 
-1. Run `npm i` command
-2. Setup database settings inside `ormconfig.json` file
-3. Run `npm start` command
+Setup:
+
+yarn
+yarn build
+yarn start
