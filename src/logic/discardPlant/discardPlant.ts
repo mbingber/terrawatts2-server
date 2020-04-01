@@ -29,7 +29,7 @@ export const discardPlant = async(
     throw new Error("ERROR: incorrect actionType");
   }
 
-  const me = game.playerOrder.find((p) => p.id === me.id);
+  const me = game.playerOrder.find((p) => p.id === meId);
   if (!mustDiscardPlant(game, me)) {
     throw new Error("ERROR: no need to discard");
   }
