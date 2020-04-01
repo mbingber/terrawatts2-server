@@ -17,6 +17,7 @@ import { powerUp } from './logic/powerUp/powerUp';
 import { cashMoney } from './logic/powerUp/makeMoney';
 import { discardPlant } from './logic/discardPlant/discardPlant';
 import { pubsub } from './pubsub';
+import { createUser } from './logic/createUser/createUser';
 
 const resolvers = {
   Query: {
@@ -33,17 +34,10 @@ const resolvers = {
     buyResources: (_, { gameId, meId, resources, cost }) => buyResources(+gameId, +meId, resources, cost),
     buyCities: (_, { gameId, meId, cityInstanceIds, cost }) => buyCities(+gameId, +meId, cityInstanceIds, cost),
     powerUp: (_, { gameId, meId, plantInstanceIds, hybridChoice }) => powerUp(+gameId, +meId, plantInstanceIds, hybridChoice),
+    createUser: (_, { username, preferredColor }) => createUser(username, preferredColor)
   },
   Subscription: {
     gameUpdated: {
-      // subscribe: withFilter(
-      // subscribe: withFilterReplacement(
-      //   () => pubsub.asyncIterator([GAME_UPDATED]),
-      //   (payload, variables) => {
-      //     // intentional ==, here
-      //     return payload.gameUpdated.id == variables.id
-      //   }
-      // )
       subscribe: (_, args) => pubsub.asyncIterator(`${GAME_UPDATED}.${args.id}`)
     }
   },
