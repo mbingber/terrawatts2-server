@@ -17,7 +17,6 @@ export const getNextPlayerInPlantPhase = (game: Game): Player => game
 
 export const recordPlantPhaseEvent = (game: Game, plantInstance: PlantInstance): void => {
   const event = new PlantPhaseEvent();
-  event.game = game;
   event.turn = game.turn;
   event.player = game.auction ? game.auction.leadingPlayer : game.activePlayer;
   event.plant = plantInstance;
