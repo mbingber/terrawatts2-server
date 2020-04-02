@@ -119,16 +119,17 @@ export const startResourcePhase = (game: Game): void => {
 export const obtainPlant = (
   game: Game,
   plantInstance: PlantInstance,
-  player: Player,
+  p: Player,
   cost: number
 ) => {
+  const player = game.playerOrder.find((_p) => _p.id === p.id);
+
   // give the plant to the player
   plantInstance.status = PlantStatus.OWNED;
   plantInstance.player = player;
   player.plants.push(plantInstance);
   
   player.money -= cost;
-  savePlayer(player, game);
   
   drawPlantFromDeck(game);
   recordPlantPhaseEvent(game, plantInstance);
