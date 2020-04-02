@@ -65,7 +65,10 @@ const server = new ApolloServer({
   typeDefs: importSchema('src/schema.graphql'),
   resolvers,
   playground: true,
-  introspection: true
+  introspection: true,
+  subscriptions: {
+    keepAlive: 10000
+  }
 });
 
 createConnection().then(async connection => {
