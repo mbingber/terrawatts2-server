@@ -1,17 +1,16 @@
 import { getRepository } from "typeorm";
 import { Game } from "../../entity/Game";
-import { pubsub } from "../../pubsub";
-
-export const GAME_UPDATED = "GAME_UPDATED";
+import { redis } from "../../redis";
 
 export const saveGame = async (
   game: Game
 ): Promise<Game> => {
   const gameRepository = getRepository(Game);
-  game.lastUpdated = new Date();
+  game.version++;
 
   await gameRepository.save(game);
 
-  pubsub.publish(`GAME_UPDATED.${game.id}`, { gameUpdated: game });
+  redis.set(game.id, game);
+
   return game;
 }

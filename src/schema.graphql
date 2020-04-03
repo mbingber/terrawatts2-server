@@ -1,5 +1,5 @@
 type Query {
-  getGame(id: ID!): Game
+  getGame(id: ID!, lastVersion: Int): Game
   getCityCostHelper(mapName: String!, regions: [Int!]!): String!
   fetchMap(mapName: String!, regions: [Int]): PopulatedMap!
   getRevenues: [Int!]!
@@ -14,10 +14,6 @@ type Mutation {
   buyCities(gameId: ID!, meId: ID!, cityInstanceIds: [ID!]!, cost: Int!): Game!
   powerUp(gameId: ID!, meId: ID!, plantInstanceIds: [ID!]!, hybridChoice: HybridChoiceInput): Game!
   createUser(username: String!, preferredColor: Color): User
-}
-
-type Subscription {
-  gameUpdated(id: ID!): Game
 }
 
 type Game {
@@ -39,6 +35,7 @@ type Game {
   auction: Auction
   restockRates: RestockRates!
   plantRankBought: Int!
+  version: Int!
 }
 
 type PlantPhaseEvent {

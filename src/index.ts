@@ -9,19 +9,17 @@ import { bidOnPlant } from './logic/bidOnPlant/bidOnPlant';
 import { getCityCostHelper } from './logic/buyCities/getCityCostHelper';
 import { fetchMap } from './queries/fetchMap';
 import { PlantStatus } from './entity/PlantInstance';
-import { GAME_UPDATED } from './logic/utils/saveGame';
 import { buyResources } from './logic/buyResources/buyResources';
 import { getRestockRates } from './logic/powerUp/restockRates';
 import { buyCities } from './logic/buyCities/buyCities';
 import { powerUp } from './logic/powerUp/powerUp';
 import { cashMoney } from './logic/powerUp/makeMoney';
 import { discardPlant } from './logic/discardPlant/discardPlant';
-import { pubsub } from './pubsub';
 import { createUser } from './logic/createUser/createUser';
 
 const resolvers = {
   Query: {
-    getGame: (_, { id }) => findGameById(id),
+    getGame: (_, { id, version }) => findGameById(id, version),
     getCityCostHelper: (_, { mapName, regions }) => getCityCostHelper(mapName, regions).then(JSON.stringify),
     fetchMap: (_, { mapName, regions }) => fetchMap(mapName, regions),
     getRevenues: () => cashMoney
@@ -36,11 +34,11 @@ const resolvers = {
     powerUp: (_, { gameId, meId, plantInstanceIds, hybridChoice }) => powerUp(+gameId, +meId, plantInstanceIds, hybridChoice),
     createUser: (_, { username, preferredColor }) => createUser(username, preferredColor)
   },
-  Subscription: {
-    gameUpdated: {
-      subscribe: (_, args) => pubsub.asyncIterator(`${GAME_UPDATED}.${args.id}`)
-    }
-  },
+  // Subscription: {
+  //   gameUpdated: {
+  //     subscribe: (_, args) => pubsub.asyncIterator(`${GAME_UPDATED}.${args.id}`)
+  //   }
+  // },
   PopulatedMap: {
     connections: (map) => map.connections.filter(connection => (
       connection.cities.every(city => map.cities.some((c) => c.id === city.id))
@@ -61,7 +59,7 @@ const resolvers = {
     playerOrder: ({ plants, playerOrder }) => playerOrder.map((player) => ({
       ...player,
       ownedPlants: plants.filter((p) => p.status === PlantStatus.OWNED)
-    })),
+    }))
   },
   Player: {
     plants: (player) => player.ownedPlants
@@ -77,9 +75,9 @@ const server = new ApolloServer({
   resolvers,
   playground: true,
   introspection: true,
-  subscriptions: {
-    keepAlive: 10000
-  }
+  // subscriptions: {
+  //   keepAlive: 10000
+  // }
 });
 
 createConnection().then(async connection => {

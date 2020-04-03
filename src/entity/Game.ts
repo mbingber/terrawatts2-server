@@ -73,7 +73,7 @@ export class Game {
   @JoinColumn()
   auction: Auction;
 
-  @Column({ type: "timestamp", default: new Date(0) })
-  lastUpdated: Date;
+  @Column({ default: 1 })
+  version: number;
 
 }
