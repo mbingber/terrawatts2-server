@@ -73,7 +73,6 @@ export const discardPlant = async(
     me.resources.coal -= leftoverCoal;
     me.resources.oil -= leftoverOil;
   }
-
   // continue
   game.plantRankBought = 0;
   if (game.plantPhaseEvents.length < game.playerOrder.length) {
