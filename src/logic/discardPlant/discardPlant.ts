@@ -46,7 +46,6 @@ export const discardPlant = async(
   // discard the plant
   plantInstance.status = PlantStatus.DISCARDED;
   plantInstance.player = null;
-  me.plants = me.plants.filter((p) => p.id !== plantInstance.id);
 
   // lose resources, if necessary
   const resourceCapacity = getResourceCapacity(game, me);

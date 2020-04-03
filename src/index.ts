@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
-import { ApolloServer, withFilter } from 'apollo-server';
+import { ApolloServer } from 'apollo-server';
 import { importSchema } from 'graphql-import';
 import { createGame } from './logic/createGame/createGame';
 import { findGameById } from './queries/findGameById';
@@ -57,7 +57,18 @@ const resolvers = {
     deckCount: ({ plants }) => plants
       .filter((plantInstance) => plantInstance.status === PlantStatus.DECK)
       .length,
-    restockRates: ({ playerOrder, map }) => getRestockRates(map.name, playerOrder.length)
+    restockRates: ({ playerOrder, map }) => getRestockRates(map.name, playerOrder.length),
+    playerOrder: ({ plants, playerOrder }) => playerOrder.map((player) => ({
+      ...player,
+      ownedPlants: plants.filter((p) => p.status === PlantStatus.OWNED)
+    })),
+  },
+  Player: {
+    plants: (player) => player.ownedPlants
+      .filter((plantInstance) => (
+        plantInstance.player &&
+        plantInstance.player.id === player.id
+      ))
   }
 };
 

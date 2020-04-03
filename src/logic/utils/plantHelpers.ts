@@ -127,7 +127,6 @@ export const obtainPlant = (
   // give the plant to the player
   plantInstance.status = PlantStatus.OWNED;
   plantInstance.player = player;
-  player.plants.push(plantInstance);
   
   player.money -= cost;
   
