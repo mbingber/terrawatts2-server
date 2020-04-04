@@ -28,7 +28,7 @@
    "scripts": {
       "build": "rimraf ./build && tsc -p ./tsconfig.json",
       "postinstall": "yarn build",
-      "start": "node --optimize_for_size --max_old_space_size=460 ./build/index.js",
+      "start": "node ./build/index.js",
       "start:dev": "ts-node src/index.ts",
       "migrate": "ts-node ./node_modules/.bin/typeorm migration:run",
       "revert": "ts-node ./node_modules/.bin/typeorm migration:revert",
