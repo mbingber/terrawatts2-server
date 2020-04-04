@@ -1,8 +1,19 @@
 import { getRepository } from "typeorm";
 import { Game } from "../entity/Game";
+import { redis } from "../redis";
 
 export const findGameById = async (id: number): Promise<Game> => {
   const gameRepository = getRepository(Game);
+
+  const storedGameJSON = await redis.get(id);
+  if (storedGameJSON) {
+    try {
+      const game = JSON.parse(storedGameJSON);
+      if (game && game.id) {
+        return game;
+      }
+    } catch {}
+  }
       
   return gameRepository
     .createQueryBuilder('game')
