@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { User, Color } from './User';
 import { PlantInstance } from './PlantInstance';
 import { Game } from './Game';
@@ -27,6 +27,9 @@ export class Player {
 
   @OneToMany(() => PlantInstance, plantInstance => plantInstance.player)
   plants: PlantInstance[];
+
+  @RelationId((player: Player) => player.plants)
+  plantInstanceIds: number[];
 
   @Column(() => Resources)
   resources: Resources;

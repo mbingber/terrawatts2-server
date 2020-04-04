@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 import { Player } from './Player';
 import { PlantInstance } from './PlantInstance';
 import { CityInstance } from './CityInstance';
@@ -56,6 +56,9 @@ export class Game {
   @OneToOne(() => Player)
   @JoinColumn()
   activePlayer: Player;
+
+  @RelationId((game: Game) => game.activePlayer)
+  activePlayerId: number;
 
   @OneToMany(() => PlantInstance, plantInstance => plantInstance.game, { cascade: true })
   plants: PlantInstance[];

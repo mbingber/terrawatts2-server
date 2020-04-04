@@ -16,6 +16,10 @@ type Mutation {
   createUser(username: String!, preferredColor: Color): User
 }
 
+type Subscription {
+  gameUpdated(id: ID!): Game
+}
+
 type Game {
   id: ID!
   map: Map!
