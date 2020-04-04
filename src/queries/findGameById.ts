@@ -2,15 +2,9 @@ import { getRepository } from "typeorm";
 import { Game } from "../entity/Game";
 import { redis } from "../redis";
 
-export const findGameById = async (id: number, lastVersion?: number): Promise<Game> => {
+export const findGameById = async (id: number): Promise<Game> => {
   const gameRepository = getRepository(Game);
 
-  // if (lastVersion) {
-  //   const storedGame: Game = await redis.get(id);
-  //   if (storedGame && lastVersion >= storedGame.version) {
-  //     return storedGame;
-  //   }
-  // }
   const storedGameJSON = await redis.get(id);
   if (storedGameJSON) {
     try {
@@ -20,7 +14,7 @@ export const findGameById = async (id: number, lastVersion?: number): Promise<Ga
       }
     } catch {}
   }
-  
+      
   return gameRepository
     .createQueryBuilder('game')
     .leftJoinAndSelect('game.map', 'map')

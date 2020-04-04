@@ -16,10 +16,12 @@ import { powerUp } from './logic/powerUp/powerUp';
 import { cashMoney } from './logic/powerUp/makeMoney';
 import { discardPlant } from './logic/discardPlant/discardPlant';
 import { createUser } from './logic/createUser/createUser';
+import { pubsub } from "./pubsub";
+import { GAME_UPDATED } from './logic/utils/saveGame';
 
 const resolvers = {
   Query: {
-    getGame: (_, { id, version }) => findGameById(id, version),
+    getGame: (_, { id }) => findGameById(id),
     getCityCostHelper: (_, { mapName, regions }) => getCityCostHelper(mapName, regions).then(JSON.stringify),
     fetchMap: (_, { mapName, regions }) => fetchMap(mapName, regions),
     getRevenues: () => cashMoney
@@ -34,11 +36,11 @@ const resolvers = {
     powerUp: (_, { gameId, meId, plantInstanceIds, hybridChoice }) => powerUp(+gameId, +meId, plantInstanceIds, hybridChoice),
     createUser: (_, { username, preferredColor }) => createUser(username, preferredColor)
   },
-  // Subscription: {
-  //   gameUpdated: {
-  //     subscribe: (_, args) => pubsub.asyncIterator(`${GAME_UPDATED}.${args.id}`)
-  //   }
-  // },
+  Subscription: {
+    gameUpdated: {
+      subscribe: (_, args) => pubsub.asyncIterator(`${GAME_UPDATED}.${args.id}`)
+    }
+  },
   PopulatedMap: {
     connections: (map) => map.connections.filter(connection => (
       connection.cities.every(city => map.cities.some((c) => c.id === city.id))
@@ -75,9 +77,9 @@ const server = new ApolloServer({
   resolvers,
   playground: true,
   introspection: true,
-  // subscriptions: {
-  //   keepAlive: 10000
-  // }
+  subscriptions: {
+    keepAlive: 10000
+  }
 });
 
 createConnection().then(async connection => {

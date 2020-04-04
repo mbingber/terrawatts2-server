@@ -1,5 +1,5 @@
 type Query {
-  getGame(id: ID!, lastVersion: Int): Game
+  getGame(id: ID!): Game
   getCityCostHelper(mapName: String!, regions: [Int!]!): String!
   fetchMap(mapName: String!, regions: [Int]): PopulatedMap!
   getRevenues: [Int!]!
