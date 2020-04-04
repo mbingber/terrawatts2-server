@@ -90,7 +90,7 @@ export const buyCities = async (
     game.actionType = ActionType.POWER_UP;
     game.activePlayer = game.playerOrder[0];
 
-    if (getMarketLength(game) === 7) {
+    if (getMarketLength(game) < 8) {
       game.era = 3;
     }
   } else {
