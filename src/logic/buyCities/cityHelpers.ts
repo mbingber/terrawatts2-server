@@ -48,3 +48,20 @@ export const cityCost = async (game: Game, purchaseIds: number[]): Promise<numbe
 
   return connectionCost + occupancyCost;
 }
+
+export const getMaxNumCities = (game: Game): number => {
+  let max = 0;
+
+  game.playerOrder.forEach((player) => {
+    const numCities = game
+      .cities
+      .filter((city) => city.players.some((p) => p.id === player.id))
+      .length;
+
+    if (numCities > max) {
+      max = numCities;
+    }
+  });
+
+  return max;
+}

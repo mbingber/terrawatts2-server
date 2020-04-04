@@ -3,7 +3,7 @@ import { PlantInstance, PlantStatus } from "../../entity/PlantInstance";
 import { Game, ActionType, Phase } from "../../entity/Game";
 import { PlantPhaseEvent } from "../../entity/PlantPhaseEvent";
 import { getTurnOrder } from "./getTurnOrder";
-import { savePlayer } from "./savePlayer";
+import { getMaxNumCities } from "../buyCities/cityHelpers";
 
 export const getAvailablePlants = (game: Game): PlantInstance[] => game
   .plants
@@ -56,6 +56,11 @@ export const drawPlantFromDeck = (game: Game): void => {
     } else if (deck.length > 0) {
       const randomPlant = deck[Math.floor(Math.random() * deck.length)];
       randomPlant.status = PlantStatus.MARKET;
+
+      const maxNumCities = getMaxNumCities(game);
+      if (maxNumCities >= randomPlant.plant.rank) {
+        discardLowestPlant(game);
+      }
     }
   }
 }
