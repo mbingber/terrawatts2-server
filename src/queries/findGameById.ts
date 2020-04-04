@@ -5,11 +5,15 @@ import { redis } from "../redis";
 export const findGameById = async (id: number, lastVersion?: number): Promise<Game> => {
   const gameRepository = getRepository(Game);
 
-  if (lastVersion) {
-    const storedGame: Game = await redis.get(id);
-    if (storedGame && lastVersion >= storedGame.version) {
-      return storedGame;
-    }
+  // if (lastVersion) {
+  //   const storedGame: Game = await redis.get(id);
+  //   if (storedGame && lastVersion >= storedGame.version) {
+  //     return storedGame;
+  //   }
+  // }
+  const storedGame: Game = await redis.get(id);
+  if (storedGame) {
+    return storedGame;
   }
   
   return gameRepository
