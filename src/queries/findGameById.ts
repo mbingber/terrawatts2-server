@@ -11,9 +11,14 @@ export const findGameById = async (id: number, lastVersion?: number): Promise<Ga
   //     return storedGame;
   //   }
   // }
-  const storedGame: Game = await redis.get(id);
-  if (storedGame) {
-    return storedGame;
+  const storedGameJSON = await redis.get(id);
+  if (storedGameJSON) {
+    try {
+      const game = JSON.parse(storedGameJSON);
+      if (game && game.id) {
+        return game;
+      }
+    } catch {}
   }
   
   return gameRepository

@@ -10,7 +10,7 @@ export const saveGame = async (
 
   await gameRepository.save(game);
 
-  redis.set(game.id, game);
+  redis.set(game.id, JSON.stringify(game));
 
   return game;
 }
