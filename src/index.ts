@@ -18,6 +18,7 @@ import { discardPlant } from './logic/discardPlant/discardPlant';
 import { createUser } from './logic/createUser/createUser';
 import { pubsub } from "./pubsub";
 import { GAME_UPDATED } from './logic/utils/saveGame';
+import { setPlayer } from './logic/setPlayer/setPlayer';
 
 const resolvers = {
   Query: {
@@ -34,7 +35,8 @@ const resolvers = {
     buyResources: (_, { gameId, meId, resources, cost }) => buyResources(+gameId, +meId, resources, cost),
     buyCities: (_, { gameId, meId, cityInstanceIds, cost }) => buyCities(+gameId, +meId, cityInstanceIds, cost),
     powerUp: (_, { gameId, meId, plantInstanceIds, hybridChoice }) => powerUp(+gameId, +meId, plantInstanceIds, hybridChoice),
-    createUser: (_, { username, preferredColor }) => createUser(username, preferredColor)
+    createUser: (_, { username, preferredColor }) => createUser(username, preferredColor),
+    setPlayer: (_, { playerId, resources, money }) => setPlayer(+playerId, resources, money)
   },
   Subscription: {
     gameUpdated: {
