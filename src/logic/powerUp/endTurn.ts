@@ -1,5 +1,5 @@
 import { Game, Phase, ActionType } from "../../entity/Game";
-import { discardLowestPlant, moveHighestPlantToEra3 } from "../utils/plantHelpers";
+import { discardLowestPlant, moveHighestPlantToEra3, getMarketLength } from "../utils/plantHelpers";
 import { getRestockRates } from "./restockRates";
 import { Resources } from "../../entity/Resources";
 import { getTurnOrder } from "../utils/getTurnOrder";
@@ -40,10 +40,15 @@ export const endTurn = (game: Game): void => {
   });
 
   // remove highest plant (or lowest plant if era3) and replace
+  const willStartEra3 = getMarketLength(game) < 8;
   if (game.era === 3) {
     discardLowestPlant(game);
-  } else {
+  } else if (!willStartEra3) {
     moveHighestPlantToEra3(game);
+  }
+
+  if (willStartEra3) {
+    game.era = 3;
   }
 
   // redo turn order

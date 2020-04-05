@@ -35,13 +35,8 @@ export const startEra3 = (game: Game): void => {
     }
   });
   
-  if (game.phase === Phase.CITY) {
+  if (game.phase === Phase.CITY || game.phase === Phase.POWER) {
     discardLowestPlant(game, true);
-  }
-  
-  if (game.phase === Phase.POWER) {
-    discardLowestPlant(game, true);
-    game.era = 3;
   }
 }
 
@@ -111,7 +106,7 @@ export const startResourcePhase = (game: Game): void => {
     discardLowestPlant(game);
   }
 
-  if (getMarketLength(game) === 7) {
+  if (getMarketLength(game) < 8 && game.era < 3) {
     discardLowestPlant(game, true);
     game.era = 3;
   }
