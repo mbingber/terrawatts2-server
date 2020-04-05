@@ -24,8 +24,8 @@ export const cashMoney = [
 ];
 
 export const makeMoney = (numPowered: number): number => {
-  if (numPowered > 20) {
-    return numPowered[20];
+  if (numPowered > 21) {
+    return cashMoney[21];
   }
   
   return cashMoney[numPowered];
