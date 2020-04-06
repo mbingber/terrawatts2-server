@@ -6,8 +6,10 @@ import { PlantInstance, PlantStatus } from "../entity/PlantInstance";
 import { PlantPhaseEvent } from "../entity/PlantPhaseEvent";
 import { Auction } from "../entity/Auction";
 import { Player } from "../entity/Player";
+import { performance } from "perf_hooks";
 
 export const findGameById = async (id: number): Promise<Game> => {
+  const start = performance.now();
   const gameRepository = getRepository(Game);
   const cityInstanceRepository = getRepository(CityInstance);
   const plantInstanceRepository = getRepository(PlantInstance);
@@ -33,6 +35,8 @@ export const findGameById = async (id: number): Promise<Game> => {
     .where("game.id = :id", { id })
     .orderBy("player.turnOrder")
     .getOne();
+
+  const mainQueryEnd = performance.now();
 
   game.cities = await cityInstanceRepository
     .find({
@@ -74,6 +78,11 @@ export const findGameById = async (id: number): Promise<Game> => {
     game.auction.leadingPlayer = game.playerOrder.find((p) => p.id === game.auction.leadingPlayerId);
     game.auction.passedPlayers = game.playerOrder.filter((p) => game.auction.passedPlayerIds.includes(p.id));
   }
+
+  const endOfQuery = performance.now();
+  console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+  console.log("MAIN QUERY TIME", mainQueryEnd - start);
+  console.log("WHOLE QUERY TIME", endOfQuery - start);
 
   return game;
 }
