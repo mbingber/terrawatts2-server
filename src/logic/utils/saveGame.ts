@@ -20,6 +20,9 @@ export const saveGame = async (
 
   // redis.set(game.id, JSON.stringify(game));
 
-  pubsub.publish(`GAME_UPDATED.${game.id}`, { gameUpdated: game });
+  await pubsub.publish(`GAME_UPDATED.${game.id}`, { gameUpdated: game });
+  const published = performance.now();
+  
+  console.log("PUBLISH TIME:", published - gameIsSaved);
   return game;
 }
