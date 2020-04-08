@@ -19,6 +19,7 @@ import { createUser } from './logic/createUser/createUser';
 import { pubsub } from "./pubsub";
 import { GAME_UPDATED } from './logic/utils/saveGame';
 import { setPlayer } from './logic/setPlayer/setPlayer';
+import { setEra } from './logic/setEra/setEra';
 
 const resolvers = {
   Query: {
@@ -36,7 +37,8 @@ const resolvers = {
     buyCities: (_, { gameId, meId, cityInstanceIds, cost }) => buyCities(+gameId, +meId, cityInstanceIds, cost),
     powerUp: (_, { gameId, meId, plantInstanceIds, hybridChoice }) => powerUp(+gameId, +meId, plantInstanceIds, hybridChoice),
     createUser: (_, { username, preferredColor }) => createUser(username, preferredColor),
-    setPlayer: (_, { playerId, resources, money }) => setPlayer(+playerId, resources, money)
+    setPlayer: (_, { playerId, resources, money }) => setPlayer(+playerId, resources, money),
+    setEra: (_, { gameId, era }) => setEra(+gameId, era)
   },
   Subscription: {
     gameUpdated: {

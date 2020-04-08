@@ -15,6 +15,7 @@ type Mutation {
   powerUp(gameId: ID!, meId: ID!, plantInstanceIds: [ID!]!, hybridChoice: HybridChoiceInput): Game!
   createUser(username: String!, preferredColor: Color): User
   setPlayer(playerId: ID!, resources: ResourcesInput, money: Int): Player
+  setEra(gameId: ID!, era: Int!): Game
 }
 
 type Subscription {
