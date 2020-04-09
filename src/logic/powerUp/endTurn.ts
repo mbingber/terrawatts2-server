@@ -40,14 +40,14 @@ export const endTurn = (game: Game): void => {
   });
 
   // remove highest plant (or lowest plant if era3) and replace
-  const willStartEra3 = getMarketLength(game) < 8;
   if (game.era === 3) {
     discardLowestPlant(game);
-  } else if (!willStartEra3) {
+  } else if (getMarketLength(game) === 8) {
     moveHighestPlantToEra3(game);
   }
 
-  if (willStartEra3) {
+  // must recalc this, since moveHighestPlantToEra can change market length 
+  if (getMarketLength(game) < 8) {
     game.era = 3;
   }
 

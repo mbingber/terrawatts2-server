@@ -53,7 +53,7 @@ export class Game {
   @OneToMany(() => Player, player => player.game, { cascade: true })
   playerOrder: Player[];
 
-  @OneToOne(() => Player)
+  @OneToOne(() => Player, { cascade: true })
   @JoinColumn()
   activePlayer: Player;
 
