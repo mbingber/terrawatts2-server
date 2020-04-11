@@ -36,7 +36,7 @@ const resolvers = {
     buyResources: (_, { gameId, meId, resources, cost }) => buyResources(+gameId, +meId, resources, cost),
     buyCities: (_, { gameId, meId, cityInstanceIds, cost }) => buyCities(+gameId, +meId, cityInstanceIds, cost),
     powerUp: (_, { gameId, meId, plantInstanceIds, hybridChoice }) => powerUp(+gameId, +meId, plantInstanceIds, hybridChoice),
-    createUser: (_, { username, preferredColor }) => createUser(username, preferredColor),
+    createUser: (_, { username, preferredColor, we }) => createUser(username, preferredColor, we),
     setPlayer: (_, { playerId, resources, money }) => setPlayer(+playerId, resources, money),
     setEra: (_, { gameId, era }) => setEra(+gameId, era)
   },

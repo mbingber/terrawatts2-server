@@ -22,4 +22,7 @@ export class User {
   @Column({ nullable: true })
   preferredColor: Color;
 
+  @Column({ default: true })
+  we: boolean;
+
 }

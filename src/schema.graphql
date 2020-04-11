@@ -13,7 +13,7 @@ type Mutation {
   buyResources(gameId: ID!, meId: ID!, resources: ResourcesInput!, cost: Int!): Game!
   buyCities(gameId: ID!, meId: ID!, cityInstanceIds: [ID!]!, cost: Int!): Game!
   powerUp(gameId: ID!, meId: ID!, plantInstanceIds: [ID!]!, hybridChoice: HybridChoiceInput): Game!
-  createUser(username: String!, preferredColor: Color): User
+  createUser(username: String!, preferredColor: Color, we: Boolean!): User
   setPlayer(playerId: ID!, resources: ResourcesInput, money: Int): Player
   setEra(gameId: ID!, era: Int!): Game
 }
@@ -77,6 +77,7 @@ type User {
   id: ID!
   username: String!
   preferredColor: Color
+  we: Boolean!
 }
 
 type PlantInstance {
