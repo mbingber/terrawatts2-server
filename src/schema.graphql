@@ -3,19 +3,21 @@ type Query {
   getCityCostHelper(mapName: String!, regions: [Int!]!): String!
   fetchMap(mapName: String!, regions: [Int]): PopulatedMap!
   getRevenues: [Int!]!
+  getCurrentUser: User
 }
 
 type Mutation {
   createGame(usernames: [String!]!, mapName: String!): Game!
-  putUpPlant(gameId: ID!, meId: ID!, plantInstanceId: ID, bid: Int): Game!
-  bidOnPlant(gameId: ID!, meId: ID!, bid: Int): Game!
-  discardPlant(gameId: ID!, meId: ID!, plantInstanceId: ID!, fossilFuelDiscard: HybridChoiceInput): Game!
-  buyResources(gameId: ID!, meId: ID!, resources: ResourcesInput!, cost: Int!): Game!
-  buyCities(gameId: ID!, meId: ID!, cityInstanceIds: [ID!]!, cost: Int!): Game!
-  powerUp(gameId: ID!, meId: ID!, plantInstanceIds: [ID!]!, hybridChoice: HybridChoiceInput): Game!
-  createUser(username: String!, preferredColor: Color, we: Boolean!): User
+  putUpPlant(gameId: ID!, plantInstanceId: Int, bid: Int): Game!
+  bidOnPlant(gameId: ID!, bid: Int): Game!
+  discardPlant(gameId: ID!, plantInstanceId: Int!, fossilFuelDiscard: HybridChoiceInput): Game!
+  buyResources(gameId: ID!, resources: ResourcesInput!, cost: Int!): Game!
+  buyCities(gameId: ID!, cityInstanceIds: [ID!]!, cost: Int!): Game!
+  powerUp(gameId: ID!, plantInstanceIds: [ID!]!, hybridChoice: HybridChoiceInput): Game!
   setPlayer(playerId: ID!, resources: ResourcesInput, money: Int): Player
   setEra(gameId: ID!, era: Int!): Game
+  createUser(username: String!, password: String!, preferredColor: Color, we: Boolean!): User
+  login(username: String!, password: String!): LoginResponse!
 }
 
 type Subscription {
@@ -147,6 +149,11 @@ input ResourcesInput {
 input HybridChoiceInput {
   coal: Int!
   oil: Int!
+}
+
+type LoginResponse {
+  token: String
+  user: User
 }
 
 enum Phase {

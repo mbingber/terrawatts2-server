@@ -1,60 +1,45 @@
 import { Game, Phase, ActionType } from "../../entity/Game";
-import { findGameById } from "../../queries/findGameById";
 import { Resources } from "../../entity/Resources";
 import { getTotalResourceCost, canFitResources } from "./resourceHelpers";
-import { saveGame } from "../utils/saveGame";
 import { savePlayer } from "../utils/savePlayer";
+import { Player } from "../../entity/Player";
+
+interface BuyResourcesArgs {
+  resources: Resources;
+  cost: number;
+}
 
 export const buyResources = async (
-  gameId: number,
-  meId: number,
-  resources: Resources,
-  cost: number,
+  game: Game,
+  me: Player,
+  args: BuyResourcesArgs
 ): Promise<Game> => {
-  const game = await findGameById(gameId);
-  
-  if (!game) {
-    throw new Error("ERROR: game not found");
-  }
-
-  if (meId !== game.activePlayer.id) {
-    throw new Error("ERROR: not your turn");
-  }
-
-  if (game.phase !== Phase.RESOURCE) {
-    throw new Error("ERROR: incorrect phase");
-  }
-
-  if (game.actionType !== ActionType.BUY_RESOURCES) {
-    throw new Error("ERROR: incorrect actionType");
-  }
-
-  const areResourcesAvailable = Object.keys(resources)
-    .every((resourceType) => resources[resourceType] <= game.resourceMarket[resourceType]);
+  const areResourcesAvailable = Object.keys(args.resources)
+    .every((resourceType) => args.resources[resourceType] <= game.resourceMarket[resourceType]);
   if (!areResourcesAvailable) {
     throw new Error("ERROR: resources unavailable");
   }
 
-  if (game.activePlayer.money < cost) {
+  if (game.activePlayer.money < args.cost) {
     throw new Error("ERROR: cannot afford resources");
   }
 
-  if (getTotalResourceCost(game.resourceMarket, resources) !== cost) {
+  if (getTotalResourceCost(game.resourceMarket, args.resources) !== args.cost) {
     throw new Error("ERROR: incorrect cost");
   }
 
-  if (!canFitResources(game, resources)) {
+  if (!canFitResources(game, args.resources)) {
     throw new Error("ERROR: cannot fit resources on plants");
   }
 
   // purchase the resources
-  Object.keys(resources)
+  Object.keys(args.resources)
     .forEach((resourceType) => {
-      game.resourceMarket[resourceType] -= resources[resourceType];
-      game.activePlayer.resources[resourceType] += resources[resourceType];
+      game.resourceMarket[resourceType] -= args.resources[resourceType];
+      game.activePlayer.resources[resourceType] += args.resources[resourceType];
     });
 
-  game.activePlayer.money -= cost;
+  game.activePlayer.money -= args.cost;
   savePlayer(game.activePlayer, game);
 
   const activePlayerIdx = game.playerOrder.findIndex(player => player.id === game.activePlayer.id);
@@ -68,5 +53,5 @@ export const buyResources = async (
     game.activePlayer = game.playerOrder[activePlayerIdx - 1];
   }
 
-  return saveGame(game);
+  return game;
 };

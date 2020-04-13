@@ -1,45 +1,30 @@
-import { Game, Phase, ActionType } from "../../entity/Game";
-import { findGameById } from "../../queries/findGameById";
+import { Game, ActionType } from "../../entity/Game";
 import { PlantStatus } from "../../entity/PlantInstance";
 import { Auction } from "../../entity/Auction";
 import { getNextAuctionBidder } from "../utils/auctionHelpers";
 import { recordPlantPhaseEvent, startResourcePhase, getAvailablePlants, obtainPlant, getNextPlayerInPlantPhase } from "../utils/plantHelpers";
 import { saveGame } from "../utils/saveGame";
+import { Player } from "../../entity/Player";
+
+interface PutUpPlantArgs {
+  plantInstanceId: number;
+  bid: number;
+}
 
 export const putUpPlant = async (
-  gameId: number,
-  meId: number,
-  plantInstanceId: number,
-  bid: number
+  game: Game,
+  me: Player,
+  args: PutUpPlantArgs,
 ): Promise<Game> => {
-  const game = await findGameById(gameId);
-
-  // TODO: these first two validations are universal
-  if (!game) {
-    throw new Error("ERROR: game not found");
-  }
-
-  if (meId !== game.activePlayer.id) {
-    throw new Error("ERROR: not your turn");
-  }
-
-  if (game.phase !== Phase.PLANT) {
-    throw new Error("ERROR: incorrect phase");
-  }
-
-  if (game.actionType !== ActionType.PUT_UP_PLANT) {
-    throw new Error("ERROR: incorrect actionType");
-  }
-
   if (game.auction) {
     throw new Error("ERROR: auction in progress");
   }
 
-  if (game.plantPhaseEvents.some((event) => event.player.id === meId)) {
+  if (game.plantPhaseEvents.some((event) => event.player.id === me.id)) {
     throw new Error("ERROR: player already chose this plant phase");
   }
 
-  if (!plantInstanceId) {
+  if (!args.plantInstanceId) {
     if (game.turn === 1) {
       throw new Error("ERROR: pass not allowed on turn 1");
     }
@@ -56,7 +41,7 @@ export const putUpPlant = async (
     return saveGame(game);
   }
 
-  const plantInstance = game.plants.find((pi) => pi.id === plantInstanceId);
+  const plantInstance = game.plants.find((pi) => pi.id === args.plantInstanceId);
   if (!plantInstance) {
     throw new Error("ERROR: plant instance not found");
   }
@@ -70,11 +55,11 @@ export const putUpPlant = async (
     throw new Error("ERROR: plant not currently available");
   }
 
-  if (bid < plantInstance.plant.rank) {
+  if (args.bid < plantInstance.plant.rank) {
     throw new Error("ERROR: bid too low");
   }
 
-  if (bid > game.activePlayer.money) {
+  if (args.bid > game.activePlayer.money) {
     throw new Error("ERROR: cannot afford bid");
   }
 
@@ -82,15 +67,15 @@ export const putUpPlant = async (
     // start an auction
     const auction = new Auction();
     auction.plant = plantInstance;
-    auction.bid = bid;
+    auction.bid = args.bid;
     auction.leadingPlayer = game.activePlayer;
     auction.activePlayer = getNextAuctionBidder(game, game.activePlayer);
 
     game.auction = auction;
     game.actionType = ActionType.BID_ON_PLANT;
   } else {
-    obtainPlant(game, plantInstance, game.activePlayer, bid);
+    obtainPlant(game, plantInstance, game.activePlayer, args.bid);
   }
 
-  return saveGame(game);
+  return game;
 };

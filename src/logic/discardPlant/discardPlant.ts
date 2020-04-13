@@ -1,41 +1,25 @@
-import { Game, Phase, ActionType } from "../../entity/Game";
-import { findGameById } from "../../queries/findGameById";
-import { saveGame } from "../utils/saveGame";
+import { Game, ActionType } from "../../entity/Game";
 import { mustDiscardPlant, getNextPlayerInPlantPhase, startResourcePhase } from "../utils/plantHelpers";
 import { PlantStatus } from "../../entity/PlantInstance";
 import { getResourceCapacity } from "../buyResources/resourceHelpers";
+import { Player } from "../../entity/Player";
+
+interface DiscardPlantArgs {
+  plantInstanceId: number;
+  fossilFuelDiscard: { coal: number; oil: number; };
+}
 
 export const discardPlant = async(
-  gameId: number,
-  meId: number,
-  plantInstanceId: number,
-  fossilFuelDiscard: { coal: number; oil: number; },
+  game: Game,
+  me: Player,
+  args: DiscardPlantArgs,
 ): Promise<Game> => {
-  const game = await findGameById(gameId);
-
-  if (!game) {
-    throw new Error("ERROR: game not found");
-  }
-
-  if (meId !== game.activePlayer.id) {
-    throw new Error("ERROR: not your turn");
-  }
-
-  if (game.phase !== Phase.PLANT) {
-    throw new Error("ERROR: incorrect phase");
-  }
-
-  if (game.actionType !== ActionType.DISCARD_PLANT) {
-    throw new Error("ERROR: incorrect actionType");
-  }
-
-  const me = game.playerOrder.find((p) => p.id === meId);
   if (!mustDiscardPlant(game, me)) {
     throw new Error("ERROR: no need to discard");
   }
 
-  const plantInstance = game.plants.find((plant) => plant.id === plantInstanceId);
-  if (!plantInstance || plantInstance.player.id !== meId) {
+  const plantInstance = game.plants.find((plant) => plant.id === args.plantInstanceId);
+  if (!plantInstance || plantInstance.player.id !== me.id) {
     throw new Error("ERROR: you don't have that plant");
   }
 
@@ -59,16 +43,16 @@ export const discardPlant = async(
 
   const amountToDiscard = leftoverCoal + leftoverOil - resourceCapacity.HYBRID;
   if (amountToDiscard > 0 && leftoverCoal > 0 && leftoverOil > 0) {
-    if (!fossilFuelDiscard) {
+    if (!args.fossilFuelDiscard) {
       throw new Error("ERROR: must provide coal/oil discard choice");
     }
     
-    if (fossilFuelDiscard.coal + fossilFuelDiscard.oil !== amountToDiscard) {
+    if (args.fossilFuelDiscard.coal + args.fossilFuelDiscard.oil !== amountToDiscard) {
       throw new Error("ERROR: discarding incorrect amount of coal/oil");
     }
 
-    me.resources.coal -= fossilFuelDiscard.coal;
-    me.resources.oil -= fossilFuelDiscard.oil;
+    me.resources.coal -= args.fossilFuelDiscard.coal;
+    me.resources.oil -= args.fossilFuelDiscard.oil;
   } else if (amountToDiscard > 0) {
     me.resources.coal -= leftoverCoal;
     me.resources.oil -= leftoverOil;
@@ -82,5 +66,5 @@ export const discardPlant = async(
     startResourcePhase(game);
   }
 
-  return saveGame(game);
+  return game;
 }

@@ -2,43 +2,44 @@ import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 import { ApolloServer } from 'apollo-server';
 import { importSchema } from 'graphql-import';
+import * as jwt from 'jsonwebtoken';
 import { createGame } from './logic/createGame/createGame';
 import { findGameById } from './queries/findGameById';
-import { putUpPlant } from './logic/putUpPlant/putUpPlant';
-import { bidOnPlant } from './logic/bidOnPlant/bidOnPlant';
 import { getCityCostHelper } from './logic/buyCities/getCityCostHelper';
 import { fetchMap } from './queries/fetchMap';
 import { PlantStatus } from './entity/PlantInstance';
-import { buyResources } from './logic/buyResources/buyResources';
 import { getRestockRates } from './logic/powerUp/restockRates';
-import { buyCities } from './logic/buyCities/buyCities';
-import { powerUp } from './logic/powerUp/powerUp';
 import { cashMoney } from './logic/powerUp/makeMoney';
-import { discardPlant } from './logic/discardPlant/discardPlant';
-import { createUser } from './logic/createUser/createUser';
+import { createUser } from './auth/createUser';
 import { pubsub } from "./pubsub";
 import { GAME_UPDATED } from './logic/utils/saveGame';
 import { setPlayer } from './logic/setPlayer/setPlayer';
 import { setEra } from './logic/setEra/setEra';
+import { login } from './auth/login';
+import { getCurrentUser } from './auth/getCurrentUser';
+import { actionWrapper } from './logic/utils/actionWrapper';
+import { ActionType } from './entity/Game';
 
 const resolvers = {
   Query: {
     getGame: (_, { id }) => findGameById(id),
     getCityCostHelper: (_, { mapName, regions }) => getCityCostHelper(mapName, regions).then(JSON.stringify),
     fetchMap: (_, { mapName, regions }) => fetchMap(mapName, regions),
-    getRevenues: () => cashMoney
+    getRevenues: () => cashMoney,
+    getCurrentUser: (_, __, { user }) => getCurrentUser(user)
   },
   Mutation: {
     createGame: (_, { usernames, mapName }) => createGame(usernames, mapName),
-    putUpPlant: (_, { gameId, meId, plantInstanceId, bid }) => putUpPlant(+gameId, +meId, +plantInstanceId, +bid),
-    bidOnPlant: (_, { gameId, meId, bid }) => bidOnPlant(+gameId, +meId, bid),
-    discardPlant: (_, { gameId, meId, plantInstanceId, fossilFuelDiscard }) => discardPlant(+gameId, +meId, +plantInstanceId, fossilFuelDiscard),
-    buyResources: (_, { gameId, meId, resources, cost }) => buyResources(+gameId, +meId, resources, cost),
-    buyCities: (_, { gameId, meId, cityInstanceIds, cost }) => buyCities(+gameId, +meId, cityInstanceIds, cost),
-    powerUp: (_, { gameId, meId, plantInstanceIds, hybridChoice }) => powerUp(+gameId, +meId, plantInstanceIds, hybridChoice),
-    createUser: (_, { username, preferredColor, we }) => createUser(username, preferredColor, we),
+    putUpPlant: actionWrapper(ActionType.PUT_UP_PLANT),
+    bidOnPlant: actionWrapper(ActionType.BID_ON_PLANT),
+    discardPlant: actionWrapper(ActionType.DISCARD_PLANT),
+    buyResources: actionWrapper(ActionType.BUY_RESOURCES),
+    buyCities: actionWrapper(ActionType.BUY_CITIES),
+    powerUp: actionWrapper(ActionType.POWER_UP),
     setPlayer: (_, { playerId, resources, money }) => setPlayer(+playerId, resources, money),
-    setEra: (_, { gameId, era }) => setEra(+gameId, era)
+    setEra: (_, { gameId, era }) => setEra(+gameId, era),
+    createUser: (_, { username, password, preferredColor, we }) => createUser(username, password, preferredColor, we),
+    login: (_, { username, password }) => login(username, password)
   },
   Subscription: {
     gameUpdated: {
@@ -76,6 +77,17 @@ const resolvers = {
   }
 };
 
+const getUser = (token: string): { id: number; username: string; } => {
+  try {
+    if (token) {
+      return jwt.verify(token, process.env.LOGIN_SECRET);
+    }
+    return null;
+  } catch (err) {
+    return null;
+  }
+};
+
 const server = new ApolloServer({
   typeDefs: importSchema('src/schema.graphql'),
   resolvers,
@@ -83,6 +95,13 @@ const server = new ApolloServer({
   introspection: true,
   subscriptions: {
     keepAlive: 10000
+  },
+  context: ({ req }) => {
+    const tokenWithBearer = req.headers.authorization || '';
+    const token = tokenWithBearer.split(' ')[1];
+    const user = getUser(token);
+
+    return { user };
   }
 });
 

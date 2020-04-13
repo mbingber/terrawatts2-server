@@ -19,6 +19,9 @@ export class User {
   @Column()
   username: string;
 
+  @Column({ default: "" })
+  password: string;
+
   @Column({ nullable: true })
   preferredColor: Color;
 

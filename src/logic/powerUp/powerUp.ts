@@ -1,41 +1,25 @@
-import { Game, Phase, ActionType } from "../../entity/Game";
-import { findGameById } from "../../queries/findGameById";
-import { saveGame } from "../utils/saveGame";
+import { Game } from "../../entity/Game";
 import { PlantResourceType } from "../../entity/Plant";
 import { makeMoney } from "./makeMoney";
 import { endTurn } from "./endTurn";
+import { Player } from "../../entity/Player";
+
+interface PowerUpArgs {
+  plantInstanceIds: string[];
+  hybridChoice: { coal: number; oil: number };
+}
 
 export const powerUp = async(
-  gameId: number,
-  meId: number,
-  plantInstanceIds: string[],
-  hybridChoice: { coal: number; oil: number }
+  game: Game,
+  me: Player,
+  args: PowerUpArgs
 ): Promise<Game> => {
-  const game = await findGameById(gameId);
-
-  if (!game) {
-    throw new Error("ERROR: game not found");
-  }
-
-  if (meId !== game.activePlayer.id) {
-    throw new Error("ERROR: not your turn");
-  }
-
-  if (game.phase !== Phase.POWER) {
-    throw new Error("ERROR: incorrect phase");
-  }
-
-  if (game.actionType !== ActionType.POWER_UP) {
-    throw new Error("ERROR: incorrect actionType");
-  }
-
-  const me = game.playerOrder.find((player) => player.id === meId);
-  if (plantInstanceIds.some((plantInstanceId) => me.plants.every((p) => p.id !== +plantInstanceId))) {
+  if (args.plantInstanceIds.some((plantInstanceId) => me.plants.every((p) => p.id !== +plantInstanceId))) {
     throw new Error("ERROR: you do not own some of those plants");
   }
 
   const plantsPowering = me.plants
-    .filter((plantInstance) => plantInstanceIds.includes(plantInstance.id.toString()));
+    .filter((plantInstance) => args.plantInstanceIds.includes(plantInstance.id.toString()));
 
   const resourcesNeeded = plantsPowering
     .reduce<Partial<Record<PlantResourceType, number>>>((acc, plantInstance) => {
@@ -89,18 +73,18 @@ export const powerUp = async(
     throw new Error("ERROR: not enough resources to power");
   }
 
-  if (hybridChoiceNeeded && !hybridChoice) {
+  if (hybridChoiceNeeded && !args.hybridChoice) {
     throw new Error("ERROR: need to make a hybrid choice");
   }
 
-  if (hybridChoiceNeeded && (hybridChoice.coal > myResourcesCopy.coal || hybridChoice.oil > myResourcesCopy.oil)) {
+  if (hybridChoiceNeeded && (args.hybridChoice.coal > myResourcesCopy.coal || args.hybridChoice.oil > myResourcesCopy.oil)) {
     throw new Error("ERROR: not enough resources for hybrid choice");
   }
 
   // spend resources
   if (hybridChoiceNeeded) {
-    myResourcesCopy.coal -= hybridChoice.coal;
-    myResourcesCopy.oil -= hybridChoice.oil;
+    myResourcesCopy.coal -= args.hybridChoice.coal;
+    myResourcesCopy.oil -= args.hybridChoice.oil;
   }
   me.resources = myResourcesCopy;
   
@@ -109,7 +93,7 @@ export const powerUp = async(
   }, 0);
 
   const numCities = game.cities.filter((cityInstance) => (
-    cityInstance.players.some((p) => p.id === meId)
+    cityInstance.players.some((p) => p.id === me.id)
   )).length;
 
   const numPowered = Math.min(powerCapacity, numCities);
@@ -127,5 +111,5 @@ export const powerUp = async(
     game.activePlayer = game.playerOrder[activePlayerIdx + 1];
   }
 
-  return saveGame(game)
+  return game;
 }

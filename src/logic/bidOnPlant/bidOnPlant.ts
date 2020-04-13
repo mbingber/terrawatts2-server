@@ -3,44 +3,31 @@ import { findGameById } from "../../queries/findGameById";
 import { getNextAuctionBidder, isAuctionOver } from "../utils/auctionHelpers";
 import { obtainPlant } from "../utils/plantHelpers";
 import { saveGame } from "../utils/saveGame";
+import { Player } from "../../entity/Player";
+
+interface BidOnPlantArgs {
+  bid: number;
+}
 
 export const bidOnPlant = async (
-  gameId: number,
-  meId: number,
-  bid: number
+  game: Game,
+  me: Player,
+  args: BidOnPlantArgs
 ): Promise<Game> => {
-  const game = await findGameById(gameId);
-  
-  if (!game) {
-    throw new Error("ERROR: game not found");
-  }
-
   if (!game.auction) {
     throw new Error("ERROR: auction not in progress");
   }
 
-  if (meId !== game.auction.activePlayer.id) {
-    throw new Error("ERROR: not your turn");
-  }
-
-  if (game.phase !== Phase.PLANT) {
-    throw new Error("ERROR: incorrect phase");
-  }
-
-  if (game.actionType !== ActionType.BID_ON_PLANT) {
-    throw new Error("ERROR: incorrect actionType");
-  }
-
-  if (bid !== null && bid <= game.auction.bid) {
+  if (args.bid !== null && args.bid <= game.auction.bid) {
     throw new Error("ERROR: bid too low");
   }
 
-  if (bid > game.auction.activePlayer.money) {
+  if (args.bid > game.auction.activePlayer.money) {
     throw new Error("ERROR: cannot afford bid");
   }
 
-  if (bid) {
-    game.auction.bid = bid;
+  if (args.bid) {
+    game.auction.bid = args.bid;
     game.auction.leadingPlayer = game.auction.activePlayer;
     game.auction.activePlayer = getNextAuctionBidder(game, game.auction.activePlayer);
   } else {
@@ -56,5 +43,5 @@ export const bidOnPlant = async (
     }
   }
 
-  return saveGame(game);
+  return game;
 };

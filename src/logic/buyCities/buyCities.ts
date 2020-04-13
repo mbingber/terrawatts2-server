@@ -1,35 +1,20 @@
 import { Game, Phase, ActionType } from "../../entity/Game";
-import { findGameById } from "../../queries/findGameById";
-import { saveGame } from "../utils/saveGame";
 import { savePlayer } from "../utils/savePlayer";
 import { cityCost } from "./cityHelpers";
 import { getMarketLength, getLowestRankInMarket, discardLowestPlant } from "../utils/plantHelpers";
+import { Player } from "../../entity/Player";
+
+interface BuyCitiesArgs {
+  cityInstanceIds: string[];
+  cost: number;
+}
 
 export const buyCities = async (
-  gameId: number,
-  meId: number,
-  cityInstanceIds: string[],
-  cost: number,
+  game: Game,
+  me: Player,
+  args: BuyCitiesArgs
 ): Promise<Game> => {
-  const game = await findGameById(gameId);
-  
-  if (!game) {
-    throw new Error("ERROR: game not found");
-  }
-
-  if (meId !== game.activePlayer.id) {
-    throw new Error("ERROR: not your turn");
-  }
-
-  if (game.phase !== Phase.CITY) {
-    throw new Error("ERROR: incorrect phase");
-  }
-
-  if (game.actionType !== ActionType.BUY_CITIES) {
-    throw new Error("ERROR: incorrect actionType");
-  }
-
-  if (game.activePlayer.money < cost) {
+  if (me.money < args.cost) {
     throw new Error("ERROR: cannot afford cities");
   }
 
@@ -37,13 +22,13 @@ export const buyCities = async (
   let isOccupiedByMe = false;
   const cityIds = [];
 
-  cityInstanceIds.forEach((cityInstanceId) => {
+  args.cityInstanceIds.forEach((cityInstanceId) => {
     const cityInstance = game.cities.find((c) => c.id === +cityInstanceId);
     if (cityInstance.players.length >= game.era) {
       slotsAreOpen = false;
     }
 
-    if (cityInstance.players.some((p) => p.id === meId)) {
+    if (cityInstance.players.some((p) => p.id === me.id)) {
       isOccupiedByMe = true;
     }
 
@@ -59,17 +44,16 @@ export const buyCities = async (
   }
 
   const actualCost = await cityCost(game, cityIds);
-  if (actualCost !== cost) {
+  if (actualCost !== args.cost) {
     throw new Error("ERROR: incorrect cost");
   }
 
-  const me = game.playerOrder.find((p) => p.id === meId);
-  cityInstanceIds.forEach((cityInstanceId) => {
+  args.cityInstanceIds.forEach((cityInstanceId) => {
     const cityInstance = game.cities.find((c) => c.id === +cityInstanceId);
     cityInstance.players.push(me);
   });
 
-  game.activePlayer.money -= cost;
+  game.activePlayer.money -= args.cost;
   savePlayer(game.activePlayer, game);
 
   // potentially remove plants
@@ -98,5 +82,5 @@ export const buyCities = async (
     game.activePlayer = game.playerOrder[activePlayerIdx - 1];
   }
 
-  return saveGame(game);
+  return game;
 };
