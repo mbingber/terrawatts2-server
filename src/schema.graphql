@@ -18,6 +18,7 @@ type Mutation {
   setEra(gameId: ID!, era: Int!): Game
   createUser(username: String!, password: String!, preferredColor: Color, we: Boolean!): User
   login(username: String!, password: String!): LoginResponse!
+  setPassword(username: String!, password: String!): User
 }
 
 type Subscription {

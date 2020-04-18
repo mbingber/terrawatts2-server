@@ -20,6 +20,7 @@ import { login } from './auth/login';
 import { getCurrentUser } from './auth/getCurrentUser';
 import { actionWrapper } from './logic/utils/actionWrapper';
 import { ActionType } from './entity/Game';
+import { setPassword } from './auth/setPassword';
 
 const resolvers = {
   Query: {
@@ -40,7 +41,8 @@ const resolvers = {
     setPlayer: (_, { playerId, resources, money }) => setPlayer(+playerId, resources, money),
     setEra: (_, { gameId, era }) => setEra(+gameId, era),
     createUser: (_, { username, password, preferredColor, we }) => createUser(username, password, preferredColor, we),
-    login: (_, { username, password }) => login(username, password)
+    login: (_, { username, password }) => login(username, password),
+    setPassword: (_, { username, password }) => setPassword(username, password)
   },
   Subscription: {
     gameUpdated: {
