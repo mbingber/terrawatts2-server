@@ -113,7 +113,7 @@ server.applyMiddleware({
   app,
   cors: {
     credentials: true,
-    origin: true,
+    origin: '*',
   },
   path: '/'
 });
