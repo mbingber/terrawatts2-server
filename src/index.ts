@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
+import { createServer } from 'http';
 import * as express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { importSchema } from 'graphql-import';
@@ -100,6 +101,10 @@ const server = new ApolloServer({
     keepAlive: 10000
   },
   context: ({ req }) => {
+    if (!req) {
+      return {};
+    };
+    
     const tokenWithBearer = req.headers.authorization || '';
     const token = tokenWithBearer.split(' ')[1];
     const user = getUser(token);
@@ -118,8 +123,12 @@ server.applyMiddleware({
   path: '/'
 });
 
+const httpServer = createServer(app);
+server.installSubscriptionHandlers(httpServer);
+
 createConnection().then(async connection => {
-  app.listen({ port: process.env.PORT || 4000 }, () => {
+  httpServer.listen({ port: process.env.PORT || 4000 }, () => {
     console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+    console.log(`🚀 Subscriptions ready at ws://localhost:4000${server.subscriptionsPath}`);
   });
 }).catch(error => console.log(error));
