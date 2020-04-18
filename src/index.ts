@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
-import { ApolloServer } from 'apollo-server';
+import * as express from 'express';
+import { ApolloServer } from 'apollo-server-express';
 import { importSchema } from 'graphql-import';
 import * as jwt from 'jsonwebtoken';
 import { createGame } from './logic/createGame/createGame';
@@ -105,8 +106,18 @@ const server = new ApolloServer({
   }
 });
 
+const app = express();
+server.applyMiddleware({
+  app,
+  cors: {
+    credentials: true,
+    origin: true,
+  },
+  path: '/'
+});
+
 createConnection().then(async connection => {
-  server.listen({
-    port: process.env.PORT || 4000
-  }).then(({ url }) => console.log(`Server is running on ${url}`));
+  app.listen({ port: process.env.PORT || 4000 }, () => {
+    console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+  });
 }).catch(error => console.log(error));
