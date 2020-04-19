@@ -69,9 +69,9 @@ const resolvers = {
       .length,
     discardedPlants: ({ plants }) => plants
       .filter((plantInstance) => plantInstance.status === PlantStatus.DISCARDED),
-    era3Plants: ({ plants }) => {
+    era3Plants: ({ plants, turn }) => {
       const era3Plants = plants.filter((plantInstance) => plantInstance.status === PlantStatus.ERA_THREE);
-      if (era3Plants.length === 0) {
+      if (era3Plants.length === 0 && turn > 1) {
         return plants.filter((plantInstance) => plantInstance.status === PlantStatus.DECK);
       }
       return era3Plants;
