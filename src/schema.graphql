@@ -46,6 +46,8 @@ type Game {
   auction: Auction
   restockRates: RestockRates!
   plantRankBought: Int!
+  era2Start: Int!
+  gameEnd: Int!
   version: Int!
 }
 

@@ -22,6 +22,7 @@ import { getCurrentUser } from './auth/getCurrentUser';
 import { actionWrapper } from './logic/utils/actionWrapper';
 import { ActionType } from './entity/Game';
 import { setPassword } from './auth/setPassword';
+import { numCitiesToStartEra2, numCitiesToEndGame } from './logic/powerUp/cityMilestones';
 
 const resolvers = {
   Query: {
@@ -79,7 +80,9 @@ const resolvers = {
     playerOrder: ({ plants, playerOrder }) => playerOrder.map((player) => ({
       ...player,
       ownedPlants: plants.filter((p) => p.status === PlantStatus.OWNED)
-    }))
+    })),
+    era2Start: ({ playerOrder }) => numCitiesToStartEra2(playerOrder.length),
+    gameEnd: ({ playerOrder }) => numCitiesToEndGame(playerOrder.length),
   },
   Player: {
     plants: (player) => player.ownedPlants
