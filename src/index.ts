@@ -66,6 +66,15 @@ const resolvers = {
     deckCount: ({ plants }) => plants
       .filter((plantInstance) => plantInstance.status === PlantStatus.DECK)
       .length,
+    discardedPlants: ({ plants }) => plants
+      .filter((plantInstance) => plantInstance.status === PlantStatus.DISCARDED),
+    era3Plants: ({ plants }) => {
+      const era3Plants = plants.filter((plantInstance) => plantInstance.status === PlantStatus.ERA_THREE);
+      if (era3Plants.length === 0) {
+        return plants.filter((plantInstance) => plantInstance.status === PlantStatus.DECK);
+      }
+      return era3Plants;
+    },
     restockRates: ({ playerOrder, map }) => getRestockRates(map.name, playerOrder.length),
     playerOrder: ({ plants, playerOrder }) => playerOrder.map((player) => ({
       ...player,
