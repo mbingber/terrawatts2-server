@@ -2,6 +2,7 @@ import { getRepository } from "typeorm";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import { User } from "../entity/User";
+import { setUserOnline } from "./onlineUsers";
 
 interface LoginResponse {
   token: string;
@@ -25,6 +26,8 @@ export const login = async (
   if (!passwordMatch) {
     throw new Error("Invalid login");
   }
+
+  await setUserOnline(user);
 
   const token = jwt.sign(
     {

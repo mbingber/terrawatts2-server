@@ -5,10 +5,13 @@ import { createPlayers } from './createPlayers';
 import { createPlantInstances } from './createPlantInstances';
 import { getRegions } from './getRegions';
 import { createCityInstances } from './createCityInstances';
+import { redis } from '../../redis';
+import { RECENT_GAMES_SET } from '../../auth/getMyRecentGames';
 
 export const createGame = async (
   usernames: string[],
-  mapName: string
+  mapName: string,
+  name: string,
 ): Promise<Game> => {
   const mapRepository = getRepository(Map);
   const gameRepository = getRepository(Game);
@@ -42,5 +45,18 @@ export const createGame = async (
     uranium: 2
   };
 
-  return gameRepository.save(game);
+  game.name = name || "";
+
+  const savedGame = await gameRepository.save(game);
+
+  const now = Date.now();
+  const dayAgo = now - 1000 * 60 * 60 * 24;
+  await redis.zremrangebyscore(RECENT_GAMES_SET, -Infinity, dayAgo);
+  await redis.zadd(RECENT_GAMES_SET, now.toString(), JSON.stringify({
+    id: savedGame.id,
+    name: savedGame.name,
+    players: savedGame.playerOrder.map((p) => p.user.username)
+  }));
+
+  return savedGame;
 }

@@ -23,6 +23,8 @@ import { actionWrapper } from './logic/utils/actionWrapper';
 import { ActionType } from './entity/Game';
 import { setPassword } from './auth/setPassword';
 import { numCitiesToStartEra2, numCitiesToEndGame } from './logic/powerUp/cityMilestones';
+import { setUserOnline, getOnlineUsernames } from './auth/onlineUsers';
+import { getMyRecentGames } from './auth/getMyRecentGames';
 
 const resolvers = {
   Query: {
@@ -30,10 +32,12 @@ const resolvers = {
     getCityCostHelper: (_, { mapName, regions }) => getCityCostHelper(mapName, regions).then(JSON.stringify),
     fetchMap: (_, { mapName, regions }) => fetchMap(mapName, regions),
     getRevenues: () => cashMoney,
-    getCurrentUser: (_, __, { user }) => getCurrentUser(user)
+    getCurrentUser: (_, __, { user }) => getCurrentUser(user),
+    getOnlineUsernames: () => getOnlineUsernames(),
+    getMyRecentGames: (_, __, { user }) => getMyRecentGames(user)
   },
   Mutation: {
-    createGame: (_, { usernames, mapName }) => createGame(usernames, mapName),
+    createGame: (_, { usernames, mapName, name }) => createGame(usernames, mapName, name),
     putUpPlant: actionWrapper(ActionType.PUT_UP_PLANT),
     bidOnPlant: actionWrapper(ActionType.BID_ON_PLANT),
     discardPlant: actionWrapper(ActionType.DISCARD_PLANT),
@@ -44,7 +48,8 @@ const resolvers = {
     setEra: (_, { gameId, era }) => setEra(+gameId, era),
     createUser: (_, { username, password, preferredColor, we }) => createUser(username, password, preferredColor, we),
     login: (_, { username, password }) => login(username, password),
-    setPassword: (_, { username, password }) => setPassword(username, password)
+    setPassword: (_, { username, password }) => setPassword(username, password),
+    keepMeOnline: (_, __, { user }) => setUserOnline(user),
   },
   Subscription: {
     gameUpdated: {

@@ -4,10 +4,12 @@ type Query {
   fetchMap(mapName: String!, regions: [Int]): PopulatedMap!
   getRevenues: [Int!]!
   getCurrentUser: User
+  getOnlineUsernames: [String!]!
+  getMyRecentGames: [GameLink!]
 }
 
 type Mutation {
-  createGame(usernames: [String!]!, mapName: String!): Game!
+  createGame(usernames: [String!]!, mapName: String!, name: String): Game!
   putUpPlant(gameId: ID!, plantInstanceId: Int, bid: Int): Game!
   bidOnPlant(gameId: ID!, bid: Int): Game!
   discardPlant(gameId: ID!, plantInstanceId: Int!, fossilFuelDiscard: HybridChoiceInput): Game!
@@ -19,10 +21,17 @@ type Mutation {
   createUser(username: String!, password: String!, preferredColor: Color, we: Boolean!): User
   login(username: String!, password: String!): LoginResponse!
   setPassword(username: String!, password: String!): User
+  keepMeOnline: User
 }
 
 type Subscription {
   gameUpdated(id: ID!): Game
+}
+
+type GameLink {
+  id: ID!
+  name: String
+  players: [String!]!
 }
 
 type Game {

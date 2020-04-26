@@ -36,5 +36,8 @@
       "migrate": "ts-node ./node_modules/.bin/typeorm migration:run",
       "revert": "ts-node ./node_modules/.bin/typeorm migration:revert",
       "heroku-postbuild": "yarn migrate"
+   },
+   "devDependencies": {
+      "@types/ioredis": "^4.14.9"
    }
 }

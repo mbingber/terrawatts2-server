@@ -29,6 +29,9 @@ export class Game {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ default: "" })
+  name: string;
+
   @Column('simple-array')
   regions: number[];
 
