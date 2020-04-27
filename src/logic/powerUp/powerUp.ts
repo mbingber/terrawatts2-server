@@ -20,6 +20,8 @@ export const powerUp = async(
 
   const plantsPowering = me.plants
     .filter((plantInstance) => args.plantInstanceIds.includes(plantInstance.id.toString()));
+  
+  const hasHybrid = plantsPowering.some(p => p.plant.resourceType === PlantResourceType.HYBRID);
 
   const resourcesNeeded = plantsPowering
     .reduce<Partial<Record<PlantResourceType, number>>>((acc, plantInstance) => {
@@ -46,7 +48,7 @@ export const powerUp = async(
   ].every((r) => {
     const numResources = resourcesNeeded[r] || 0;
     
-    if (r === PlantResourceType.HYBRID) {
+    if (r === PlantResourceType.HYBRID && hasHybrid) {
       const remainingFossilFuel = myResourcesCopy.coal + myResourcesCopy.oil;
       if (remainingFossilFuel > numResources && myResourcesCopy.coal > 0 && myResourcesCopy.oil > 0) {
         hybridChoiceNeeded = true;
@@ -73,9 +75,9 @@ export const powerUp = async(
     throw new Error("ERROR: not enough resources to power");
   }
 
-  // if (hybridChoiceNeeded && !args.hybridChoice) {
-  //   throw new Error("ERROR: need to make a hybrid choice");
-  // }
+  if (hybridChoiceNeeded && !args.hybridChoice) {
+    throw new Error("ERROR: need to make a hybrid choice");
+  }
 
   if (hybridChoiceNeeded && (args.hybridChoice.coal > myResourcesCopy.coal || args.hybridChoice.oil > myResourcesCopy.oil)) {
     throw new Error("ERROR: not enough resources for hybrid choice");
