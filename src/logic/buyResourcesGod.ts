@@ -13,10 +13,8 @@ export const buyResourcesGod = async (
   const game = await findGameById(gameId);
   console.log(game.playerOrder, playerId);
   const player = game.playerOrder.find(player => {
-    console.log("!!!!!", player.id, playerId)
     return player.id == playerId
   });
-  console.log("PLAYER", player);
 
   const cost = getTotalResourceCost(game.resourceMarket, resources);
   player.money -= cost;
