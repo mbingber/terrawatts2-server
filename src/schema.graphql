@@ -22,6 +22,7 @@ type Mutation {
   login(username: String!, password: String!): LoginResponse!
   setPassword(username: String!, password: String!): User
   keepMeOnline: User
+  buyResourcesGod(gameId: ID!, playerId: ID!, resources: ResourcesInput): Game!
 }
 
 type Subscription {
