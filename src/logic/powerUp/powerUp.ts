@@ -21,8 +21,6 @@ export const powerUp = async(
   const plantsPowering = me.plants
     .filter((plantInstance) => args.plantInstanceIds.includes(plantInstance.id.toString()));
   
-  const hasHybrid = plantsPowering.some(p => p.plant.resourceType === PlantResourceType.HYBRID);
-
   const resourcesNeeded = plantsPowering
     .reduce<Partial<Record<PlantResourceType, number>>>((acc, plantInstance) => {
       const { resourceType, resourceBurn } = plantInstance.plant;
@@ -48,9 +46,9 @@ export const powerUp = async(
   ].every((r) => {
     const numResources = resourcesNeeded[r] || 0;
     
-    if (r === PlantResourceType.HYBRID && hasHybrid) {
+    if (r === PlantResourceType.HYBRID) {
       const remainingFossilFuel = myResourcesCopy.coal + myResourcesCopy.oil;
-      if (remainingFossilFuel > numResources && myResourcesCopy.coal > 0 && myResourcesCopy.oil > 0) {
+      if (remainingFossilFuel > numResources && myResourcesCopy.coal > 0 && myResourcesCopy.oil > 0 && numResources > 0) {
         hybridChoiceNeeded = true;
       } else if (remainingFossilFuel >= numResources) {
         if (myResourcesCopy.coal > 0) {

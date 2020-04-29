@@ -26,6 +26,7 @@ import { numCitiesToStartEra2, numCitiesToEndGame } from './logic/powerUp/cityMi
 import { setUserOnline, getOnlineUsernames } from './auth/onlineUsers';
 import { getMyRecentGames } from './auth/getMyRecentGames';
 import { buyResourcesGod } from './logic/buyResourcesGod';
+import { setUserPreferences } from './auth/setUserPreferences';
 
 const resolvers = {
   Query: {
@@ -51,7 +52,8 @@ const resolvers = {
     login: (_, { username, password }) => login(username, password),
     setPassword: (_, { username, password }) => setPassword(username, password),
     keepMeOnline: (_, __, { user }) => setUserOnline(user),
-    buyResourcesGod: (_, { gameId, playerId, resources }) => buyResourcesGod(gameId, playerId, resources)
+    buyResourcesGod: (_, { gameId, playerId, resources }) => buyResourcesGod(gameId, playerId, resources),
+    setUserPreferences: (_, { preferredColor, we }, { user }) => setUserPreferences(user, preferredColor, we)
   },
   Subscription: {
     gameUpdated: {

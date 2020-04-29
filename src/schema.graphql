@@ -23,6 +23,7 @@ type Mutation {
   setPassword(username: String!, password: String!): User
   keepMeOnline: User
   buyResourcesGod(gameId: ID!, playerId: ID!, resources: ResourcesInput): Game!
+  setUserPreferences(preferredColor: Color, we: Boolean): User!
 }
 
 type Subscription {
