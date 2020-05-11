@@ -51,14 +51,14 @@ export class Game {
   resourceMarket: Resources;
 
   @ManyToOne(() => Map)
-  map: Map;
+  map: Map; // mapName
 
   @OneToMany(() => Player, player => player.game, { cascade: true })
-  playerOrder: Player[];
+  playerOrder: Player[]; // TODO
 
   @OneToOne(() => Player, { cascade: true })
   @JoinColumn()
-  activePlayer: Player;
+  activePlayer: Player; // N/A
 
   @RelationId((game: Game) => game.activePlayer)
   activePlayerId: number;

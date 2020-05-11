@@ -8,12 +8,12 @@ import { Auction } from "../entity/Auction";
 import { Player } from "../entity/Player";
 import { performance } from "perf_hooks";
 
-export const findGameById = async (id: number): Promise<Game> => {
+export const findGameById = async (id: number, repositoryGetter: any = getRepository): Promise<Game> => {
   const start = performance.now();
-  const gameRepository = getRepository(Game);
-  const cityInstanceRepository = getRepository(CityInstance);
-  const plantInstanceRepository = getRepository(PlantInstance);
-  const plantPhaseEventRepository = getRepository(PlantPhaseEvent);
+  const gameRepository = repositoryGetter(Game);
+  const cityInstanceRepository = repositoryGetter(CityInstance);
+  const plantInstanceRepository = repositoryGetter(PlantInstance);
+  const plantPhaseEventRepository = repositoryGetter(PlantPhaseEvent);
 
   // const storedGameJSON = await redis.get(id);
   // if (storedGameJSON) {
