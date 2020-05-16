@@ -28,6 +28,7 @@ const connectionsRaw = [
 export class seedSeattleMap1589666552224 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<any> {
+        return; // TODO: remove this line
         const map = new Map();
         map.name = MAP_NAME;
 
