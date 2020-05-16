@@ -11,12 +11,44 @@ const amountToRemove: Record<number, number> = {
   6: 0
 };
 
+const chinaRemoval: Record<number, number[]> = {
+  2: [3, 4, 9, 11, 16, 18, 20, 24, 30, 33, 46],
+  3: [3, 4, 9, 11, 16, 18, 20, 24, 30, 33, 46],
+  4: [3, 4, 11, 18, 24, 33, 46],
+  5: [3, 4, 33],
+  6: [3, 4, 33]
+};
+
+const createPlantInstancesChina = (plants: Plant[], numPlayers: number): PlantInstance[] => {
+  let marketSize = 0;
+  return plants.sort((a, b) => a.rank - b.rank).map((plant) => {
+    const plantInstance = new PlantInstance();
+    plantInstance.plant = plant;
+
+    if (chinaRemoval[numPlayers].includes(plant.rank)) {
+      plantInstance.status = PlantStatus.REMOVED_BEFORE_START;
+    } else if (marketSize < numPlayers) {
+      plantInstance.status = PlantStatus.MARKET;
+      marketSize++;
+    } else {
+      plantInstance.status = PlantStatus.DECK;
+    }
+
+    return plantInstance;
+  });
+};
+
 export const createPlantInstances = async (
-  numPlayers: number
+  numPlayers: number,
+  mapName: string,
 ): Promise<PlantInstance[]> => {
   const plantRepository = getRepository(Plant);
 
   const plants = await plantRepository.find();
+
+  if (mapName === 'China') {
+    return createPlantInstancesChina(plants, numPlayers);
+  }
 
   const deck = plants.filter(p => p.rank > 10 && p.rank !== 13);
 
