@@ -319,11 +319,11 @@ const connectionsItaly = [
   { cityNames: ['Catania', 'Siracusa'], cost:  15 }
 ];
 
-export class seedItalyMapAgain1589667596730 implements MigrationInterface {
+export class seedItalyMapAgain1589667596731 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<any> {
         const italy = await queryRunner.manager.find(Map, { name: 'Italy' });
-        if (italy) {
+        if (italy && italy.length) {
             return;
         }
         
