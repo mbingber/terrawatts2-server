@@ -50,7 +50,7 @@ const citiesRaw = [
     map: 'Italy'
   },
   {
-    name: 'Padova',
+    name: 'Padua',
     region: 2,
     map: 'Italy'
   },
@@ -229,8 +229,8 @@ const connectionsItaly = [
   { cityNames: ['Piacenza', 'Brescia'], cost:  5 },
   { cityNames: ['Piacenza', 'Parma'], cost:  4 },
   { cityNames: ['Bergamo', 'Brescia'], cost:  3 },
-  { cityNames: ['Bergamo', 'Bolanzo'], cost:  12 },
-  { cityNames: ['Brescia', 'Bolanzo'], cost:  12 },
+  { cityNames: ['Bergamo', 'Bolzano'], cost:  12 },
+  { cityNames: ['Brescia', 'Bolzano'], cost:  12 },
   { cityNames: ['Brescia', 'Parma'], cost:  6 },
   { cityNames: ['Brescia', 'Verona'], cost:  4 },
   { cityNames: ['Verona', 'Vicenza'], cost:  3 },
@@ -238,9 +238,9 @@ const connectionsItaly = [
   { cityNames: ['Verona', 'Ferrara'], cost:  7 },
   { cityNames: ['Verona', 'Modena'], cost:  8 },
   { cityNames: ['Verona', 'Parma'], cost:  6 },
-  { cityNames: ['Bolanzo', 'Vicenza'], cost:  10 },
-  { cityNames: ['Bolanzo', 'Mestre'], cost:  12 },
-  { cityNames: ['Bolanzo', 'Udine'], cost:  14 },
+  { cityNames: ['Bolzano', 'Vicenza'], cost:  10 },
+  { cityNames: ['Bolzano', 'Mestre'], cost:  12 },
+  { cityNames: ['Bolzano', 'Udine'], cost:  14 },
   { cityNames: ['Vicenza', 'Padua'], cost:  3 },
   { cityNames: ['Padua', 'Mestre'], cost:  3 },
   { cityNames: ['Padua', 'Ferrara'], cost:  7 },
@@ -331,7 +331,11 @@ export class seedMapsIan1588443634320 implements MigrationInterface {
             connection.cost = c.cost;
             connection.map = c.map;
             connection.cities = c.cityNames.map(cityName => {
-              return cities.find(city => city.name === cityName);
+              const city = cities.find(city => city.name === cityName);
+              if (!city) {
+                console.log("CITY NOT FOUND:", cityName);
+              }
+              return city;
             });
       
             return connection;

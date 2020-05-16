@@ -38,12 +38,23 @@ export const createGame = async (
   game.era = 1;
   game.actionType = ActionType.PUT_UP_PLANT;
   game.phase = Phase.PLANT;
-  game.resourceMarket = {
-    coal: 24,
-    oil: 18,
-    trash: 6,
-    uranium: 2
-  };
+
+  if (game.map.name === 'Italy') {
+    game.resourceMarket = {
+      coal: 18,
+      oil: 15,
+      trash: 12,
+      uranium: 2
+    };
+  } else {
+    game.resourceMarket = {
+      coal: 24,
+      oil: 18,
+      trash: 6,
+      uranium: 2
+    };
+  }
+
 
   game.name = name || "";
 
