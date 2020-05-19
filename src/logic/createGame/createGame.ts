@@ -12,6 +12,7 @@ export const createGame = async (
   usernames: string[],
   mapName: string,
   name: string,
+  regions?: number[]
 ): Promise<Game> => {
   const mapRepository = getRepository(Map);
   const gameRepository = getRepository(Game);
@@ -30,7 +31,7 @@ export const createGame = async (
     throw new Error('ERROR: map not found');
   }
 
-  game.regions = getRegions(mapName, usernames.length);
+  game.regions = regions || getRegions(mapName, usernames.length);
   game.cities = await createCityInstances(game.map, game.regions);
   game.plants = await createPlantInstances(usernames.length);
 

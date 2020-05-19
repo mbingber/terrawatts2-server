@@ -9,7 +9,7 @@ type Query {
 }
 
 type Mutation {
-  createGame(usernames: [String!]!, mapName: String!, name: String): Game!
+  createGame(usernames: [String!]!, mapName: String!, name: String, regions: [Int]): Game!
   putUpPlant(gameId: ID!, plantInstanceId: Int, bid: Int): Game!
   bidOnPlant(gameId: ID!, bid: Int): Game!
   discardPlant(gameId: ID!, plantInstanceId: Int!, fossilFuelDiscard: HybridChoiceInput): Game!

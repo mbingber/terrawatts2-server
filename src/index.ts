@@ -39,7 +39,7 @@ const resolvers = {
     getMyRecentGames: (_, __, { user }) => getMyRecentGames(user)
   },
   Mutation: {
-    createGame: (_, { usernames, mapName, name }) => createGame(usernames, mapName, name),
+    createGame: (_, { usernames, mapName, name, regions }) => createGame(usernames, mapName, name, regions),
     putUpPlant: actionWrapper(ActionType.PUT_UP_PLANT),
     bidOnPlant: actionWrapper(ActionType.BID_ON_PLANT),
     discardPlant: actionWrapper(ActionType.DISCARD_PLANT),
