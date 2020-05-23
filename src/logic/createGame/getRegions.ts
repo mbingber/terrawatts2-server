@@ -29,6 +29,17 @@ const edgesByMap: Record<string, Record<string, boolean>> = {
     '4_5': true,
     '5_6': true
   }
+  Seattle: {
+    '1_2': true,
+    '1_3': true,
+    '2_3': true,
+    '2_4': true,
+    '3_4': true,
+    '3_5': true,
+    '4_5': true,
+    '4_6': true,
+    '5_6': true
+  }
 };
 
 const numRegionsByNumPlayers: Record<number, number> = {
