@@ -28,7 +28,7 @@ const edgesByMap: Record<string, Record<string, boolean>> = {
     '3_4': true,
     '4_5': true,
     '5_6': true
-  }
+  },
   Seattle: {
     '1_2': true,
     '1_3': true,
