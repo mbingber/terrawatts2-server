@@ -51,7 +51,7 @@ export const powerUp = async(
       if (remainingFossilFuel > numResources && myResourcesCopy.coal > 0 && myResourcesCopy.oil > 0 && numResources > 0) {
         hybridChoiceNeeded = true;
       } else if (remainingFossilFuel >= numResources) {
-        if (myResourcesCopy.coal > 0) {
+        if (myResourcesCopy.coal >= numResources) {
           myResourcesCopy.coal -= numResources;
         } else {
           myResourcesCopy.oil -= numResources;

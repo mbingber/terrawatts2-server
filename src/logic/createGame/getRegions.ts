@@ -70,14 +70,29 @@ const getPotentialRegionLists = (
     .filter((el, idx, arr) => el !== arr[idx + 1])
     .map(str => str.split('_'))
     .map(arr => arr.map(Number))
-    .filter(list => list
-      .every((region) => list
-        .some(other =>
-          edges[`${region}_${other}`] ||
-          edges[`${other}_${region}`]
-        )
-      )
-    )
+    .filter(list => {
+      const start = list[0];
+      const visited = { [start]: true };
+      const queue = [start];
+      while (queue.length) {
+        const current = queue.shift();
+        const neighbors = Object.keys(edges).reduce<number[]>((acc, key) => {
+          const [first, second] = key.split('_').map(Number);
+          if (first === current && list.includes(second) && !visited[second]) {
+            acc.push(second);
+          } else if (second === current && list.includes(first) && !visited[first]) {
+            acc.push(first);
+          }
+          return acc;
+        }, []);
+        neighbors.forEach(n => {
+          visited[n] = true;
+          queue.push(n);
+        });
+      }
+
+      return Object.keys(visited).length === numRegions;
+    });
 }
 
 export const getRegions = (mapName: string, numPlayers: number): number[] => {
