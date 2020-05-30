@@ -45,16 +45,27 @@ export const powerUp = async(
     PlantResourceType.HYBRID
   ].every((r) => {
     const numResources = resourcesNeeded[r] || 0;
+
+    if (numResources === 0) {
+      return true;
+    }
     
     if (r === PlantResourceType.HYBRID) {
       const remainingFossilFuel = myResourcesCopy.coal + myResourcesCopy.oil;
-      if (remainingFossilFuel > numResources && myResourcesCopy.coal > 0 && myResourcesCopy.oil > 0 && numResources > 0) {
+      if (remainingFossilFuel > numResources && myResourcesCopy.coal > 0 && myResourcesCopy.oil > 0) {
         hybridChoiceNeeded = true;
       } else if (remainingFossilFuel >= numResources) {
-        if (myResourcesCopy.coal >= numResources) {
+        // three ways choice can be unambiguous:
+        if (myResourcesCopy.oil === 0) {
+          // 1) Player only has coal
           myResourcesCopy.coal -= numResources;
-        } else {
+        } else if (myResourcesCopy.coal === 0) {
+          // 2) Player only has oil
           myResourcesCopy.oil -= numResources;
+        } else {
+          // 3) Exactly enough resources remain
+          myResourcesCopy.coal = 0;
+          myResourcesCopy.oil = 0;
         }
       }
       return numResources <= remainingFossilFuel;
