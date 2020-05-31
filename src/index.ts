@@ -76,6 +76,8 @@ const resolvers = {
     deckCount: ({ plants }) => plants
       .filter((plantInstance) => plantInstance.status === PlantStatus.DECK)
       .length,
+    possibleDeck: ({ plants }) => plants
+      .filter((plantInstance) => [PlantStatus.REMOVED_BEFORE_START, PlantStatus.DECK].includes(plantInstance.status)),
     discardedPlants: ({ plants }) => plants
       .filter((plantInstance) => plantInstance.status === PlantStatus.DISCARDED),
     era3Plants: ({ plants, turn }) => {
