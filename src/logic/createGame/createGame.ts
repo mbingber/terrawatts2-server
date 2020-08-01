@@ -33,7 +33,7 @@ export const createGame = async (
 
   game.regions = regions || getRegions(mapName, usernames.length);
   game.cities = await createCityInstances(game.map, game.regions);
-  game.plants = await createPlantInstances(usernames.length, game.map.name, regions);
+  game.plants = await createPlantInstances(usernames.length, game.map.name, game.regions);
 
   game.turn = 1;
   game.era = 1;

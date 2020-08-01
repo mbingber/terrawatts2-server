@@ -1,9 +1,19 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
+import axios from "axios";
 import { Map } from "../entity/Map";
 import { City } from "../entity/City";
 import { Connection } from "../entity/Connection";
 
 const MAP_NAME = 'Northern Europe';
+
+const getLatLng = async (cityName: string, country: string): Promise<{ lat: number; lng: number }> => {
+    const name = cityName.replace(/ /g, "+");
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${name},+${country}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+  
+    const response = await axios.get(url);
+    const { lat, lng } = response.data.results[0].geometry.location;
+    return { lat, lng };
+  }
 
 const citiesRaw = [
     {
@@ -82,7 +92,7 @@ const citiesRaw = [
         region: 3
     },
     {
-        name: 'Karlstad',
+        name: 'Visby',
 	country: 'Sweden',
         region: 3
     },
@@ -269,17 +279,17 @@ const connectionsRaw = [
     { cityNames: ['Uppsala', 'Turku'], cost: 15 },
     { cityNames: ['Uppsala', 'Stockholm'], cost: 2 },
     { cityNames: ['Stockholm', 'Orebro'], cost: 7 },
-    { cityNames: ['Stockholm', 'Lingkoping'], cost: 7 },
+    { cityNames: ['Stockholm', 'Linkoping'], cost: 7 },
     { cityNames: ['Stockholm', 'Visby'], cost: 12 },
-    { cityNames: ['Orebro', 'Lingkoping'], cost: 3 },
+    { cityNames: ['Orebro', 'Linkoping'], cost: 3 },
     { cityNames: ['Orebro', 'Karlstad'], cost: 4 },
-    { cityNames: ['Karlstad', 'Lingkoping'], cost: 7 },
+    { cityNames: ['Karlstad', 'Linkoping'], cost: 7 },
     { cityNames: ['Karlstad', 'Goteborg'], cost: 9 },
     { cityNames: ['Karlstad', 'Jonkoping'], cost: 9 },
     { cityNames: ['Goteborg', 'Jonkoping'], cost: 4 },
-    { cityNames: ['Lingkoping', 'Jonkoping'], cost: 5 },
-    { cityNames: ['Lingkoping', 'Kristianstad'], cost: 9 },
-    { cityNames: ['Lingkoping', 'Visby'], cost: 9 },
+    { cityNames: ['Linkoping', 'Jonkoping'], cost: 5 },
+    { cityNames: ['Linkoping', 'Kristianstad'], cost: 9 },
+    { cityNames: ['Linkoping', 'Visby'], cost: 9 },
     { cityNames: ['Jonkoping', 'Kristianstad'], cost: 8 },
     { cityNames: ['Jonkoping', 'Malmo'], cost: 10 },
     { cityNames: ['Malmo', 'Kristianstad'], cost: 3 },
@@ -298,21 +308,21 @@ const connectionsRaw = [
     { cityNames: ['Riga', 'Tallinn'], cost: 11 },
     { cityNames: ['Tartu', 'Tallinn'], cost: 5 },
     { cityNames: ['Tallinn', 'Helsinki'], cost: 7 },
-    { cityNames: ['Tallinn', 'Espod'], cost: 7 },
-    { cityNames: ['Espod', 'Helsinki'], cost: 2 },
-    { cityNames: ['Espod', 'Tampere'], cost: 5 },
-    { cityNames: ['Espod', 'Turku'], cost: 4 },
+    { cityNames: ['Tallinn', 'Espoo'], cost: 7 },
+    { cityNames: ['Espoo', 'Helsinki'], cost: 2 },
+    { cityNames: ['Espoo', 'Tampere'], cost: 5 },
+    { cityNames: ['Espoo', 'Turku'], cost: 4 },
     { cityNames: ['Helsinki', 'Tampere'], cost: 6 },
     { cityNames: ['Turku', 'Tampere'], cost: 5 },
     { cityNames: ['Turku', 'Pori'], cost: 3 },
     { cityNames: ['Pori', 'Tampere'], cost: 4 },
     { cityNames: ['Pori', 'Oulu'], cost: 15 },
-    { cityNames: ['Tempere', 'Oulu'], cost: 14 },
-    { cityNames: ['Tempere', 'Kuopio'], cost: 10 },
+    { cityNames: ['Tampere', 'Oulu'], cost: 14 },
+    { cityNames: ['Tampere', 'Kuopio'], cost: 10 },
     { cityNames: ['Oulu', 'Kuopio'], cost: 10 }
 ];
 
-export class seedNorthernEuropeMap1590355155516 implements MigrationInterface {
+export class seedNorthernEuropeMap1596315828751 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<any> {
         const mapNames = ['Northern Europe'];
@@ -321,13 +331,21 @@ export class seedNorthernEuropeMap1590355155516 implements MigrationInterface {
 
         await queryRunner.manager.save(map);
 
-        const cities: City[] = citiesRaw.map(c => {
+        const latLngPromises = citiesRaw.map(c => {
+            return getLatLng(c.name, c.country);
+        });
+
+        const latLngs = await Promise.all(latLngPromises);
+
+        const cities: City[] = citiesRaw.map((c, i) => {
             const city = new City();
+
+            const { lat, lng } = latLngs[i];
 
             city.name = c.name;
             city.region = c.region;
-            city.lat = c.lat;
-            city.lng = c.lng;
+            city.lat = lat;
+            city.lng = lng;
             city.map = map;
 
             return city;
