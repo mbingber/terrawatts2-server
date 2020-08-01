@@ -76,6 +76,7 @@ const resolvers = {
     deckCount: ({ plants }) => plants
       .filter((plantInstance) => plantInstance.status === PlantStatus.DECK)
       .length,
+    plants: ({ plants }) => plants.sort((a, b) => a.plant.rank - b.plant.rank),
     possibleDeck: ({ plants, era }) => plants
       .filter(({ status }) => status === PlantStatus.DECK || (era !== 3 && status === PlantStatus.REMOVED_BEFORE_START)),
     discardedPlants: ({ plants }) => plants

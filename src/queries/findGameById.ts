@@ -47,7 +47,7 @@ export const findGameById = async (id: number): Promise<Game> => {
   game.plants = await plantInstanceRepository
     .find({
       where: { game },
-      relations: ['plant', 'player']
+      relations: ['plant', 'player'],
     });
 
   game.plantPhaseEvents = await plantPhaseEventRepository
