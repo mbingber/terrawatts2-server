@@ -12,11 +12,25 @@ const amountToRemove: Record<number, number> = {
 };
 
 export const createPlantInstances = async (
-  numPlayers: number
+  numPlayers: number,
+  mapName: string,
+  regions: number[],
 ): Promise<PlantInstance[]> => {
   const plantRepository = getRepository(Plant);
 
-  const plants = await plantRepository.find();
+  const allPlants = await plantRepository.find();
+  const rankToPlants = allPlants.reduce<Record<number, Plant[]>>((acc, plant) => {
+    acc[plant.rank] = acc[plant.rank] || [];
+    acc[plant.rank].push(plant);
+    return acc;
+  }, {});
+
+  const plants = Object.values(rankToPlants).map(plantSubset => {
+    const matchedPlant = plantSubset.find(p => p.mapName === mapName && regions.includes(p.region));
+    const defaultPlant = plantSubset.find(p => !p.mapName);
+
+    return matchedPlant || defaultPlant;
+  });
 
   const deck = plants.filter(p => p.rank > 10 && p.rank !== 13);
 
