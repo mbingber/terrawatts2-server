@@ -5,6 +5,7 @@ import { getNextAuctionBidder } from "../utils/auctionHelpers";
 import { recordPlantPhaseEvent, startResourcePhase, getAvailablePlants, obtainPlant, getNextPlayerInPlantPhase } from "../utils/plantHelpers";
 import { saveGame } from "../utils/saveGame";
 import { Player } from "../../entity/Player";
+import { applyNorthernEuropeUraniumValidation } from "../bidOnPlant/applyNorthernEuropeUraniumValidation";
 
 interface PutUpPlantArgs {
   plantInstanceId: number;
@@ -61,6 +62,10 @@ export const putUpPlant = async (
 
   if (args.bid > game.activePlayer.money) {
     throw new Error("ERROR: cannot afford bid");
+  }
+
+  if (!applyNorthernEuropeUraniumValidation(game, me, plantInstance)) {
+    throw new Error("ERROR: cannot bid on uranium with current cities");
   }
 
   if (game.plantPhaseEvents && game.plantPhaseEvents.length < game.playerOrder.length - 1) {
