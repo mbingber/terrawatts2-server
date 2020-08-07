@@ -25,7 +25,7 @@ export const bidOnPlant = async (
     throw new Error("ERROR: cannot afford bid");
   }
 
-  if (!applyNorthernEuropeUraniumValidation(game, me, game.auction.plant)) {
+  if (args.bid && !applyNorthernEuropeUraniumValidation(game, me, game.auction.plant)) {
     throw new Error("ERROR: cannot bid on uranium with current cities");
   }
 
