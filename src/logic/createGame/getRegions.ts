@@ -50,6 +50,16 @@ const edgesByMap: Record<string, Record<string, boolean>> = {
     '3_6': true,
     '4_5': true,
     '5_6': true
+  },
+  China: {
+    '1_2': true,
+    '1_4': true,
+    '2_3': true,
+    '2_4': true,
+    '2_6': true,
+    '4_5': true,
+    '4_6': true,
+    '5_6': true,
   }
 };
 

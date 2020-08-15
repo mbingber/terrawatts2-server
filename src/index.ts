@@ -20,7 +20,7 @@ import { setEra } from './logic/setEra/setEra';
 import { login } from './auth/login';
 import { getCurrentUser } from './auth/getCurrentUser';
 import { actionWrapper } from './logic/utils/actionWrapper';
-import { ActionType } from './entity/Game';
+import { ActionType, Game } from './entity/Game';
 import { setPassword } from './auth/setPassword';
 import { numCitiesToStartEra2, numCitiesToEndGame } from './logic/powerUp/cityMilestones';
 import { setUserOnline, getOnlineUsernames } from './auth/onlineUsers';
@@ -76,15 +76,35 @@ const resolvers = {
     deckCount: ({ plants }) => plants
       .filter((plantInstance) => plantInstance.status === PlantStatus.DECK)
       .length,
-    plants: ({ plants }) => plants.sort((a, b) => a.plant.rank - b.plant.rank),
-    possibleDeck: ({ plants, era, map }) => plants
-      .filter(({ status }) => status === PlantStatus.DECK || (era !== 3 && map.name !== 'China' && status === PlantStatus.REMOVED_BEFORE_START)),
+    possibleDeck: ({ plants, era, map }) => plants.filter(({ status, plant }) => {
+      if (map.name === 'China') {
+        return status === PlantStatus.DECK && plant.rank < 36;
+      }
+      
+      if (status === PlantStatus.DECK) {
+        return true;
+      }
+
+      if (status === PlantStatus.REMOVED_BEFORE_START) {
+        return era < 3;
+      }
+    }).sort((a, b) => a.plant.rank - b.plant.rank),
     discardedPlants: ({ plants }) => plants
-      .filter((plantInstance) => plantInstance.status === PlantStatus.DISCARDED),
-    era3Plants: ({ plants, turn }) => {
-      const era3Plants = plants.filter((plantInstance) => plantInstance.status === PlantStatus.ERA_THREE);
+      .filter((plantInstance) => plantInstance.status === PlantStatus.DISCARDED)
+      .sort((a, b) => a.plant.rank - b.plant.rank),
+    era3Plants: ({ plants, turn, map }) => {
+      if (map.name === 'China') {
+        return plants.filter(p => p.status === PlantStatus.DECK && p.plant.rank >= 36);
+      }
+      
+      const era3Plants = plants
+        .filter((plantInstance) => plantInstance.status === PlantStatus.ERA_THREE)
+        .sort((a, b) => a.plant.rank - b.plant.rank);
+
       if (era3Plants.length === 0 && turn > 1) {
-        return plants.filter((plantInstance) => plantInstance.status === PlantStatus.DECK);
+        return plants
+          .filter((plantInstance) => plantInstance.status === PlantStatus.DECK)
+          .sort((a, b) => a.plant.rank - b.plant.rank);
       }
       return era3Plants;
     },
