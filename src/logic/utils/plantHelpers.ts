@@ -4,7 +4,7 @@ import { Game, ActionType, Phase } from "../../entity/Game";
 import { PlantPhaseEvent } from "../../entity/PlantPhaseEvent";
 import { getTurnOrder } from "./getTurnOrder";
 import { getMaxNumCities } from "../buyCities/cityHelpers";
-import { setChinaEra3Market } from "./drawPlantChina";
+import { setChinaEra3Market, drawPlantChina } from "./drawPlantChina";
 
 export const getAvailablePlants = (game: Game): PlantInstance[] => game
   .plants
@@ -43,8 +43,7 @@ export const startEra3 = (game: Game): void => {
 
 const drawPlantFromDeck = (game: Game): void => {
   if (game.map.name === 'China') {
-    console.log("WARNING: should not call drawPlantFromDeck for china map");
-    return;
+    return drawPlantChina(game);
   }
   
   if (game.turn === 1 && (!game.plantPhaseEvents || game.plantPhaseEvents.length === 0)) {
@@ -90,7 +89,7 @@ export const discardLowestPlant = (game: Game, suppressDraw: boolean = false): v
     lowestPlant.status = PlantStatus.DISCARDED;
   }
 
-  if (!suppressDraw && game.map.name !== 'China') {
+  if (!suppressDraw) {
     drawPlantFromDeck(game);
   }
 }
@@ -114,7 +113,6 @@ export const startResourcePhase = (game: Game): void => {
     discardLowestPlant(game);
   }
 
-  // TODO: china era 3
   if (game.era < 3 && game.map.name !== 'China' && getMarketLength(game) < 8) {
     discardLowestPlant(game, true);
     game.era = 3;

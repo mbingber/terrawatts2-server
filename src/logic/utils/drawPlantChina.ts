@@ -19,7 +19,7 @@ const drawRandomPlant = (plants: PlantInstance[]): void => {
   drawPlant(plants, randomRank);
 }
 
-const drawPlantChina = (game: Game): void => {
+export const drawPlantChina = (game: Game): void => {
   const deck = game.plants.filter(p => p.status === PlantStatus.DECK);
 
   if (game.era === 3) {
