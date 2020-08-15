@@ -15,7 +15,7 @@ const drawRandomPlant = (plants: PlantInstance[]): void => {
   drawPlant(plants, randomRank);
 }
 
-export const drawPlantChina = (game: Game): void => {
+const drawPlantChina = (game: Game): void => {
   const deck = game.plants.filter(p => p.status === PlantStatus.DECK);
 
   const smallestRank = deck.reduce<number>((acc, plant) => (
@@ -26,14 +26,15 @@ export const drawPlantChina = (game: Game): void => {
     return drawPlant(deck, smallestRank);
   }
 
-  const chanceOfEra3 = 1 / (deck.length + 1);
+  const middleCards = deck.filter(p => p.plant.rank < 36);
+  const chanceOfEra3 = 1 / (middleCards.length + 1);
   if (game.era < 3 && Math.random() < chanceOfEra3) {
     // start era 3
     discardLowestPlant(game, true);
     game.era = 3;
     return setChinaEra3Market(game);
   }
-  return drawRandomPlant(deck);
+  return drawRandomPlant(middleCards);
 }
 
 export const setChinaMarket = (game: Game): void => {
