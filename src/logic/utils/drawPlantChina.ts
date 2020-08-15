@@ -18,6 +18,10 @@ const drawRandomPlant = (plants: PlantInstance[]): void => {
 const drawPlantChina = (game: Game): void => {
   const deck = game.plants.filter(p => p.status === PlantStatus.DECK);
 
+  if (game.era === 3) {
+    return drawRandomPlant(deck);
+  }
+
   const smallestRank = deck.reduce<number>((acc, plant) => (
     Math.min(acc, plant.plant.rank)
   ), Infinity);
