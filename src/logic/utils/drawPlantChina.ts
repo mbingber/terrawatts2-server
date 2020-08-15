@@ -10,6 +10,10 @@ const drawPlant = (plants: PlantInstance[], rank: number): void => {
 }
 
 const drawRandomPlant = (plants: PlantInstance[]): void => {
+  if (!plants.length) {
+    return;
+  }
+  
   const randomIndex = Math.floor(Math.random() * plants.length);
   const randomRank = plants[randomIndex].plant.rank;
   drawPlant(plants, randomRank);
