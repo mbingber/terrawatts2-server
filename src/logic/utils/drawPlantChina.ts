@@ -20,7 +20,7 @@ const drawPlantChina = (game: Game): void => {
 
   const smallestRank = deck.reduce<number>((acc, plant) => (
     Math.min(acc, plant.plant.rank)
-  ), 0);
+  ), Infinity);
 
   if (smallestRank < 31) {
     return drawPlant(deck, smallestRank);
@@ -44,10 +44,12 @@ export const setChinaMarket = (game: Game): void => {
 
   const numPlayers = game.playerOrder.length;
   const targetMarketSize = Math.max(numPlayers - 1, 2);
-  const plantsToAdd = Math.floor(numPlayers / 2);
+  const minPlantsToAdd = Math.floor(numPlayers / 2);
 
-  for (let i = 0; i < plantsToAdd && game.era < 3; i++) {
+  let plantsAdded = 0;
+  while (plantsAdded < minPlantsToAdd || getMarketLength(game) < targetMarketSize && game.era < 3) {
     drawPlantChina(game);
+    plantsAdded++;
   }
 
   while (getMarketLength(game) > targetMarketSize) {
