@@ -20,6 +20,15 @@ export const endTurn = (game: Game): void => {
     game.era = 2;
     discardLowestPlant(game);
   }
+
+  // in china, market stuff happens before resource restock (matters for era 3 start)
+  if (game.map.name === 'China') {
+    if (game.era === 3) {
+      discardLowestPlant(game);
+    }
+    
+    setChinaMarket(game);
+  }
   
   // restock resources
   const restockRates = getRestockRates(game.map.name, game.playerOrder.length)[`era${game.era}`];
@@ -40,21 +49,20 @@ export const endTurn = (game: Game): void => {
     game.resourceMarket[r] = Math.min(game.resourceMarket[r] + restockRates[r], limit);
   });
 
-  // remove highest plant (or lowest plant if era3) and replace
-  if (game.era === 3) {
-    discardLowestPlant(game);
-  } else if (game.map.name !== 'China' && getMarketLength(game) === 8) {
-    moveHighestPlantToEra3(game);
+  if (game.map.name !== 'China') {
+    // remove highest plant (or lowest plant if era3) and replace
+    if (game.era === 3) {
+      discardLowestPlant(game);
+    } else if (game.map.name !== 'China' && getMarketLength(game) === 8) {
+      moveHighestPlantToEra3(game);
+    }
+
+    // must recalc this, since moveHighestPlantToEra can change market length 
+    if (getMarketLength(game) < 8) {
+      game.era = 3;
+    }
   }
 
-  if (game.map.name === 'China') {
-    setChinaMarket(game);
-  }
-
-  // must recalc this, since moveHighestPlantToEra can change market length 
-  if (game.map.name !== 'China' && getMarketLength(game) < 8) {
-    game.era = 3;
-  }
 
   
 
