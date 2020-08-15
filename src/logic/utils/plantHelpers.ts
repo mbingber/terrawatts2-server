@@ -10,7 +10,7 @@ export const getAvailablePlants = (game: Game): PlantInstance[] => game
   .plants
   .filter(plantInstance => plantInstance.status === PlantStatus.MARKET)
   .sort((p, q) => p.plant.rank - q.plant.rank)
-  .slice(0, game.era < 3 ? 4 : 6);
+  .slice(0, game.era < 3 && game.map.name !== 'China' ? 4 : 6);
 
 export const getNextPlayerInPlantPhase = (game: Game): Player => game
   .playerOrder
@@ -144,7 +144,7 @@ export const obtainPlant = (
   } else {
     drawPlantFromDeck(game);
   }
-  
+
   recordPlantPhaseEvent(game, plantInstance);
   
   // advance to next action
