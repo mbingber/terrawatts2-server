@@ -86,7 +86,9 @@ export const discardLowestPlant = (game: Game, suppressDraw: boolean = false): v
     .filter(p => p.status === PlantStatus.MARKET)
     .reduce<PlantInstance>((acc, p) => acc && acc.plant.rank < p.plant.rank ? acc : p, null);
 
-  lowestPlant.status = PlantStatus.DISCARDED;
+  if (lowestPlant) {
+    lowestPlant.status = PlantStatus.DISCARDED;
+  }
 
   if (!suppressDraw && game.map.name !== 'China') {
     drawPlantFromDeck(game);
