@@ -4,6 +4,7 @@ import { getRestockRates } from "./restockRates";
 import { Resources } from "../../entity/Resources";
 import { getTurnOrder } from "../utils/getTurnOrder";
 import { numCitiesToStartEra2 } from "./cityMilestones";
+import { setChinaMarket } from "../utils/drawPlantChina";
 
 export const endTurn = (game: Game): void => {
   const maxNumCities = game.playerOrder.reduce<number>((acc, player) => {
@@ -42,14 +43,20 @@ export const endTurn = (game: Game): void => {
   // remove highest plant (or lowest plant if era3) and replace
   if (game.era === 3) {
     discardLowestPlant(game);
-  } else if (getMarketLength(game) === 8) {
+  } else if (game.map.name !== 'China' && getMarketLength(game) === 8) {
     moveHighestPlantToEra3(game);
   }
 
+  if (game.map.name === 'China') {
+    setChinaMarket(game);
+  }
+
   // must recalc this, since moveHighestPlantToEra can change market length 
-  if (getMarketLength(game) < 8) {
+  if (game.map.name !== 'China' && getMarketLength(game) < 8) {
     game.era = 3;
   }
+
+  
 
   // redo turn order
   game.playerOrder = getTurnOrder(game);

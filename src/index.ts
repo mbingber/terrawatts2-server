@@ -39,7 +39,7 @@ const resolvers = {
     getMyRecentGames: (_, __, { user }) => getMyRecentGames(user)
   },
   Mutation: {
-    createGame: (_, { usernames, mapName, name }) => createGame(usernames, mapName, name),
+    createGame: (_, { usernames, mapName, name, regions }) => createGame(usernames, mapName, name, regions),
     putUpPlant: actionWrapper(ActionType.PUT_UP_PLANT),
     bidOnPlant: actionWrapper(ActionType.BID_ON_PLANT),
     discardPlant: actionWrapper(ActionType.DISCARD_PLANT),
@@ -76,6 +76,9 @@ const resolvers = {
     deckCount: ({ plants }) => plants
       .filter((plantInstance) => plantInstance.status === PlantStatus.DECK)
       .length,
+    plants: ({ plants }) => plants.sort((a, b) => a.plant.rank - b.plant.rank),
+    possibleDeck: ({ plants, era, map }) => plants
+      .filter(({ status }) => status === PlantStatus.DECK || (era !== 3 && map.name !== 'China' && status === PlantStatus.REMOVED_BEFORE_START)),
     discardedPlants: ({ plants }) => plants
       .filter((plantInstance) => plantInstance.status === PlantStatus.DISCARDED),
     era3Plants: ({ plants, turn }) => {

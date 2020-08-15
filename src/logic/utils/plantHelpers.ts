@@ -4,6 +4,7 @@ import { Game, ActionType, Phase } from "../../entity/Game";
 import { PlantPhaseEvent } from "../../entity/PlantPhaseEvent";
 import { getTurnOrder } from "./getTurnOrder";
 import { getMaxNumCities } from "../buyCities/cityHelpers";
+import { setChinaEra3Market } from "./drawPlantChina";
 
 export const getAvailablePlants = (game: Game): PlantInstance[] => game
   .plants
@@ -40,7 +41,12 @@ export const startEra3 = (game: Game): void => {
   }
 }
 
-export const drawPlantFromDeck = (game: Game): void => {
+const drawPlantFromDeck = (game: Game): void => {
+  if (game.map.name === 'China') {
+    console.log("WARNING: should not call drawPlantFromDeck for china map");
+    return;
+  }
+  
   if (game.turn === 1 && (!game.plantPhaseEvents || game.plantPhaseEvents.length === 0)) {
     const thirteen = game.plants.find(p => p.plant.rank === 13);
     thirteen.status = PlantStatus.MARKET;
@@ -82,7 +88,7 @@ export const discardLowestPlant = (game: Game, suppressDraw: boolean = false): v
 
   lowestPlant.status = PlantStatus.DISCARDED;
 
-  if (!suppressDraw) {
+  if (!suppressDraw && game.map.name !== 'China') {
     drawPlantFromDeck(game);
   }
 }
@@ -102,11 +108,12 @@ export const startResourcePhase = (game: Game): void => {
     game.playerOrder = getTurnOrder(game);
   }
 
-  if (game.plantPhaseEvents.every(event => !event.plant)) {
+  if (game.map.name !== 'China' && game.plantPhaseEvents.every(event => !event.plant)) {
     discardLowestPlant(game);
   }
 
-  if (getMarketLength(game) < 8 && game.era < 3) {
+  // TODO: china era 3
+  if (game.era < 3 && game.map.name !== 'China' && getMarketLength(game) < 8) {
     discardLowestPlant(game, true);
     game.era = 3;
   }
@@ -130,7 +137,14 @@ export const obtainPlant = (
   
   player.money -= cost;
   
-  drawPlantFromDeck(game);
+  if (game.map.name === 'China') {
+    if (game.era === 3) {
+      setChinaEra3Market(game);
+    }
+  } else {
+    drawPlantFromDeck(game);
+  }
+  
   recordPlantPhaseEvent(game, plantInstance);
   
   // advance to next action

@@ -1,9 +1,8 @@
-import { Game, Phase, ActionType } from "../../entity/Game";
-import { findGameById } from "../../queries/findGameById";
+import { Game  } from "../../entity/Game";
 import { getNextAuctionBidder, isAuctionOver } from "../utils/auctionHelpers";
 import { obtainPlant } from "../utils/plantHelpers";
-import { saveGame } from "../utils/saveGame";
 import { Player } from "../../entity/Player";
+import { applyNorthernEuropeUraniumValidation } from "./applyNorthernEuropeUraniumValidation";
 
 interface BidOnPlantArgs {
   bid: number;
@@ -24,6 +23,10 @@ export const bidOnPlant = async (
 
   if (args.bid > game.auction.activePlayer.money) {
     throw new Error("ERROR: cannot afford bid");
+  }
+
+  if (args.bid && !applyNorthernEuropeUraniumValidation(game, me, game.auction.plant)) {
+    throw new Error("ERROR: cannot bid on uranium with current cities");
   }
 
   if (args.bid) {

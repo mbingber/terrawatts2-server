@@ -7,11 +7,13 @@ import { getRegions } from './getRegions';
 import { createCityInstances } from './createCityInstances';
 import { redis } from '../../redis';
 import { RECENT_GAMES_SET } from '../../auth/getMyRecentGames';
+import { getStartingResourceMarket } from './getStartingResourceMarket';
 
 export const createGame = async (
   usernames: string[],
   mapName: string,
   name: string,
+  regions?: number[]
 ): Promise<Game> => {
   const mapRepository = getRepository(Map);
   const gameRepository = getRepository(Game);
@@ -30,20 +32,16 @@ export const createGame = async (
     throw new Error('ERROR: map not found');
   }
 
-  game.regions = getRegions(mapName, usernames.length);
+  game.regions = regions || getRegions(mapName, usernames.length);
   game.cities = await createCityInstances(game.map, game.regions);
-  game.plants = await createPlantInstances(usernames.length, game.map.name);
+  game.plants = await createPlantInstances(usernames.length, game.map.name, game.regions);
 
   game.turn = 1;
   game.era = 1;
   game.actionType = ActionType.PUT_UP_PLANT;
   game.phase = Phase.PLANT;
-  game.resourceMarket = {
-    coal: 24,
-    oil: 18,
-    trash: 6,
-    uranium: 2
-  };
+
+  game.resourceMarket = getStartingResourceMarket(game);
 
   game.name = name || "";
 

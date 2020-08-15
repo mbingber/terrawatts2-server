@@ -1,7 +1,26 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
+import axios from "axios";
 import { Map } from "../entity/Map";
 import { City } from "../entity/City";
 import { Connection } from "../entity/Connection";
+
+const COUNTRY = 'Italy';
+
+const getLatLng = async (cityName: string): Promise<{ lat: number; lng: number }> => {
+    const name = cityName.replace(/ /g, "+");
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${name},+${COUNTRY}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+  
+    const response = await axios.get(url);
+  
+    if (response.data.results.length === 0) {
+        console.log("COULD NOT FIND: ", cityName);
+        return { lat: 0, lng: 0 };
+    } else {
+        const { lat, lng } = response.data.results[0].geometry.location;
+        return { lat, lng };
+    }
+  
+  }
 
 const citiesRaw = [
   {
@@ -300,9 +319,14 @@ const connectionsItaly = [
   { cityNames: ['Catania', 'Siracusa'], cost:  15 }
 ];
 
-export class seedMapsIan1588443634320 implements MigrationInterface {
+export class seedItalyMapAgain1589667596731 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<any> {
+        const italy = await queryRunner.manager.find(Map, { name: 'Italy' });
+        if (italy && italy.length) {
+            return;
+        }
+        
         const mapNames = ['Italy'];
         const maps: Map[] = mapNames.map((name) => {
           const map = new Map();
@@ -321,6 +345,16 @@ export class seedMapsIan1588443634320 implements MigrationInterface {
     
           return city;
         });
+
+        const promises = cities.map((city) => {
+            return getLatLng(city.name)
+              .then(({ lat, lng }) => {
+                city.lat = lat;
+                city.lng = lng;
+              })
+          });
+
+        await Promise.all(promises);
     
         await queryRunner.manager.save(cities);
 

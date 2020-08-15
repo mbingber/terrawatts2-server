@@ -26,5 +26,11 @@ export class Plant {
   
   @Column()
   numCities: number;
-  
+
+  @Column({ default: "" })
+  mapName: string;
+
+  @Column({ default: 1 })
+  region: number;
+
 }

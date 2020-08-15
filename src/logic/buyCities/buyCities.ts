@@ -62,7 +62,7 @@ export const buyCities = async (
     .filter((city) => city.players.some((p) => p.id === game.activePlayer.id))
     .length;
 
-  while (getLowestRankInMarket(game) <= numCities) {
+  while (game.map.name !== 'China' && getLowestRankInMarket(game) <= numCities) {
     discardLowestPlant(game);
   }
 
@@ -74,7 +74,8 @@ export const buyCities = async (
     game.actionType = ActionType.POWER_UP;
     game.activePlayer = game.playerOrder[0];
 
-    if (getMarketLength(game) < 8) {
+    // TODO: china:
+    if (game.map.name !== 'China' && getMarketLength(game) < 8) {
       game.era = 3;
     }
   } else {
