@@ -23,6 +23,10 @@ export const drawPlantChina = (game: Game): void => {
   const deck = game.plants.filter(p => p.status === PlantStatus.DECK);
 
   if (game.era === 3) {
+    const middleCards = deck.filter(p => p.plant.rank < 36);
+    if (middleCards.length) {
+      return drawRandomPlant(middleCards);
+    }
     return drawRandomPlant(deck);
   }
 

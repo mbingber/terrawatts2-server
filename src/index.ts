@@ -78,7 +78,7 @@ const resolvers = {
       .length,
     possibleDeck: ({ plants, era, map }) => plants.filter(({ status, plant }) => {
       if (map.name === 'China') {
-        return status === PlantStatus.DECK && plant.rank < 36;
+        return status === PlantStatus.DECK && (plant.rank < 36 || era === 3);
       }
       
       if (status === PlantStatus.DECK) {
@@ -92,8 +92,9 @@ const resolvers = {
     discardedPlants: ({ plants }) => plants
       .filter((plantInstance) => plantInstance.status === PlantStatus.DISCARDED)
       .sort((a, b) => a.plant.rank - b.plant.rank),
-    era3Plants: ({ plants, turn, map }) => {
+    era3Plants: ({ plants, turn, map, era }) => {
       if (map.name === 'China') {
+        if (era === 3) return [];
         return plants.filter(p => p.status === PlantStatus.DECK && p.plant.rank >= 36);
       }
       
