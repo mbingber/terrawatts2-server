@@ -55,9 +55,12 @@ export const setChinaMarket = (game: Game): void => {
   const minPlantsToAdd = Math.floor(numPlayers / 2);
 
   let plantsAdded = 0;
-  while (plantsAdded < minPlantsToAdd || getMarketLength(game) < targetMarketSize && game.era < 3) {
+  while (plantsAdded < minPlantsToAdd || getMarketLength(game) < targetMarketSize) {
     drawPlantChina(game);
     plantsAdded++;
+    if (game.era === 3) {
+      return;
+    }
   }
 
   while (getMarketLength(game) > targetMarketSize) {
