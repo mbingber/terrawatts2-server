@@ -37,37 +37,43 @@ export const discardPlant = async(
   me.resources.uranium = Math.min(me.resources.uranium, resourceCapacity.URANIUM);
   me.resources.trash = Math.min(me.resources.trash, resourceCapacity.TRASH);
 
-  // fill up coal/oil capacity with owned coal/oil
-  const leftoverCoal = Math.max(me.resources.coal - resourceCapacity.COAL, 0);
-  const leftoverOil = Math.max(me.resources.oil - resourceCapacity.OIL, 0);
-
-  const amountToDiscard = leftoverCoal + leftoverOil - resourceCapacity.HYBRID;
-  if (amountToDiscard > 0 && leftoverCoal > 0 && leftoverOil > 0) {
-    // choice is ambiguous
-    if (!args.fossilFuelDiscard) {
-      throw new Error("ERROR: must provide coal/oil discard choice");
-    }
-    
-    if (args.fossilFuelDiscard.coal + args.fossilFuelDiscard.oil !== amountToDiscard) {
-      throw new Error("ERROR: discarding incorrect amount of coal/oil");
-    }
-
-    me.resources.coal -= args.fossilFuelDiscard.coal;
-    me.resources.oil -= args.fossilFuelDiscard.oil;
-  } else if (amountToDiscard > 0) {
-    // three ways choice can be unambiguous
-    if (leftoverCoal === 0) {
-      // player only has oil
-      me.resources.oil -= amountToDiscard;
-    } else if (leftoverOil === 0) {
-      // player only has coal
-      me.resources.coal -= amountToDiscard;
-    } else {
-      // player has exactly enough to discard
-      me.resources.coal = 0;
-      me.resources.oil = 0;
+  if (resourceCapacity.HYBRID === 0) {
+    me.resources.coal = Math.min(me.resources.coal, resourceCapacity.COAL);
+    me.resources.oil = Math.min(me.resources.oil, resourceCapacity.OIL);
+  } else {
+    // fill up coal/oil capacity with owned coal/oil
+    const leftoverCoal = Math.max(me.resources.coal - resourceCapacity.COAL, 0);
+    const leftoverOil = Math.max(me.resources.oil - resourceCapacity.OIL, 0);
+  
+    const amountToDiscard = leftoverCoal + leftoverOil - resourceCapacity.HYBRID;
+    if (amountToDiscard > 0 && leftoverCoal > 0 && leftoverOil > 0) {
+      // choice is ambiguous
+      if (!args.fossilFuelDiscard) {
+        throw new Error("ERROR: must provide coal/oil discard choice");
+      }
+      
+      if (args.fossilFuelDiscard.coal + args.fossilFuelDiscard.oil !== amountToDiscard) {
+        throw new Error("ERROR: discarding incorrect amount of coal/oil");
+      }
+  
+      me.resources.coal -= args.fossilFuelDiscard.coal;
+      me.resources.oil -= args.fossilFuelDiscard.oil;
+    } else if (amountToDiscard > 0) {
+      // three ways choice can be unambiguous
+      if (leftoverCoal === 0) {
+        // player only has oil
+        me.resources.oil -= amountToDiscard;
+      } else if (leftoverOil === 0) {
+        // player only has coal
+        me.resources.coal -= amountToDiscard;
+      } else {
+        // player has exactly enough to discard
+        me.resources.coal = 0;
+        me.resources.oil = 0;
+      }
     }
   }
+
   // continue
   game.plantRankBought = 0;
   if (game.plantPhaseEvents.length < game.playerOrder.length) {
