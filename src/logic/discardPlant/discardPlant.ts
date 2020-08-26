@@ -43,6 +43,7 @@ export const discardPlant = async(
 
   const amountToDiscard = leftoverCoal + leftoverOil - resourceCapacity.HYBRID;
   if (amountToDiscard > 0 && leftoverCoal > 0 && leftoverOil > 0) {
+    // choice is ambiguous
     if (!args.fossilFuelDiscard) {
       throw new Error("ERROR: must provide coal/oil discard choice");
     }
@@ -54,8 +55,18 @@ export const discardPlant = async(
     me.resources.coal -= args.fossilFuelDiscard.coal;
     me.resources.oil -= args.fossilFuelDiscard.oil;
   } else if (amountToDiscard > 0) {
-    me.resources.coal -= leftoverCoal;
-    me.resources.oil -= leftoverOil;
+    // three ways choice can be unambiguous
+    if (leftoverCoal === 0) {
+      // player only has oil
+      me.resources.oil -= amountToDiscard;
+    } else if (leftoverOil === 0) {
+      // player only has coal
+      me.resources.coal -= amountToDiscard;
+    } else {
+      // player has exactly enough to discard
+      me.resources.coal = 0;
+      me.resources.oil = 0;
+    }
   }
   // continue
   game.plantRankBought = 0;
