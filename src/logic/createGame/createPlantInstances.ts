@@ -47,10 +47,14 @@ export const createPlantInstances = async (
 
   const allPlants = await plantRepository.find();
   const rankToPlants = allPlants.reduce<Record<number, Plant[]>>((acc, plant) => {
-    acc[plant.rank] = acc[plant.rank] || [];
-    acc[plant.rank].push(plant);
+    if (plant.mapName !== 'Seattle') {
+      acc[plant.rank] = acc[plant.rank] || [];
+      acc[plant.rank].push(plant);
+    }
     return acc;
   }, {});
+
+  const seattlePlant = allPlants.find(p => p.mapName === 'Seattle');
 
   const plants = Object.values(rankToPlants).map(plantSubset => {
     const matchedPlant = plantSubset.find(p => p.mapName === mapName && regions.includes(p.region));
@@ -65,7 +69,11 @@ export const createPlantInstances = async (
 
   const deck = plants.filter(p => p.rank > 10 && p.rank !== 13);
 
-  const removed = shuffle(deck).slice(0, amountToRemove[numPlayers]);
+  const removed = shuffle(deck).slice(0, amountToRemove[numPlayers] + +(mapName === 'Seattle'));
+  
+  if (mapName === 'Seattle') {
+    deck.push(seattlePlant);
+  }
 
   const plantInstances: PlantInstance[] = plants.map((plant) => {
     const plantInstance = new PlantInstance();
