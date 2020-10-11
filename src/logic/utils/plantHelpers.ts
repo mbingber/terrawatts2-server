@@ -164,6 +164,10 @@ export const getMarketLength = (game: Game): number => {
   return game.plants.filter((plant) => plant.status === PlantStatus.MARKET).length;
 }
 
+export const getDeckLength = (game: Game): number => {
+  return game.plants.filter((plant) => plant.status === PlantStatus.DECK).length;
+}
+
 export const getLowestRankInMarket = (game: Game): number => {
   const market = game
     .plants

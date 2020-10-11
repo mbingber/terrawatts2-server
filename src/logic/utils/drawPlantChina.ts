@@ -1,6 +1,6 @@
 import { Game } from "../../entity/Game";
 import { PlantStatus, PlantInstance } from "../../entity/PlantInstance";
-import { getMarketLength, discardLowestPlant } from "./plantHelpers";
+import { getMarketLength, discardLowestPlant, getDeckLength } from "./plantHelpers";
 
 const drawPlant = (plants: PlantInstance[], rank: number): void => {
   const plant = plants.find(p => p.plant.rank === rank);
@@ -73,7 +73,8 @@ export const setChinaMarket = (game: Game): void => {
 }
 
 export const setChinaEra3Market = (game: Game): void => {
-  while (getMarketLength(game) < 4) {
+  
+  while (getMarketLength(game) < 4 && getDeckLength(game) > 0) {
     drawPlantChina(game);
   }
 }
