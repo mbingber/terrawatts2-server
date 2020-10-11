@@ -14,9 +14,9 @@ export const setPassword = async(
     throw new Error("User not found");
   }
   
-  if (user.password) {
-    throw new Error("This user already has a password");
-  }
+  // if (user.password) {
+  //   throw new Error("This user already has a password");
+  // }
 
   const hashedPassword = await bcrypt.hash(password, 10);
   user.password = hashedPassword;
