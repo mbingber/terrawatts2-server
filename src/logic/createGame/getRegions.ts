@@ -61,6 +61,18 @@ const edgesByMap: Record<string, Record<string, boolean>> = {
     '4_6': true,
     '5_6': true,
   }
+  France: {
+    '1_2': true,
+    '1_3': true,
+    '1_4': true,
+    '1_5': true,
+    '1_6': true,
+    '2_3': true,
+    '2_4': true,
+    '4_5': true,
+    '5_6': true,
+    '3_6': true,
+  }
 };
 
 const numRegionsByNumPlayers: Record<number, number> = {
