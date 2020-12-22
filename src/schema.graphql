@@ -1,7 +1,7 @@
 type Query {
   getGame(id: ID!): Game
-  getCityCostHelper(mapName: String!, regions: [Int!]!): String!
   fetchMap(mapName: String!, regions: [Int]): PopulatedMap!
+  fetchPlants: [Plant!]!
   getRevenues: [Int!]!
   getCurrentUser: User
   getOnlineUsernames: [String!]!
@@ -9,87 +9,22 @@ type Query {
 }
 
 type Mutation {
-  createGame(usernames: [String!]!, mapName: String!, name: String, regions: [Int]): Game!
-  putUpPlant(gameId: ID!, plantInstanceId: Int, bid: Int): Game!
-  bidOnPlant(gameId: ID!, bid: Int): Game!
-  discardPlant(gameId: ID!, plantInstanceId: Int!, fossilFuelDiscard: HybridChoiceInput): Game!
-  buyResources(gameId: ID!, resources: ResourcesInput!, cost: Int!): Game!
-  buyCities(gameId: ID!, cityInstanceIds: [ID!]!, cost: Int!): Game!
-  powerUp(gameId: ID!, plantInstanceIds: [ID!]!, hybridChoice: HybridChoiceInput): Game!
-  setPlayer(playerId: ID!, resources: ResourcesInput, money: Int): Player
-  setEra(gameId: ID!, era: Int!): Game
+  createGame(usernames: [String!]!, mapName: String!, name: String, regions: [Int]): ID!
+  putUpPlant(gameId: ID!, plantId: String, bid: Int): GameState!
+  bidOnPlant(gameId: ID!, bid: Int): GameState!
+  discardPlant(gameId: ID!, plantId: String!, hybridChoice: HybridChoiceInput): GameState!
+  buyResources(gameId: ID!, resources: ResourcesInput!, cost: Int!): GameState!
+  buyCities(gameId: ID!, cityIds: [String!]!, cost: Int!): GameState!
+  powerUp(gameId: ID!, plantIds: [String!]!, hybridChoice: HybridChoiceInput): GameState!
   createUser(username: String!, password: String!, preferredColor: Color, we: Boolean!): User
   login(username: String!, password: String!): LoginResponse!
   setPassword(username: String!, password: String!): User
   keepMeOnline: User
-  buyResourcesGod(gameId: ID!, playerId: ID!, resources: ResourcesInput): Game!
   setUserPreferences(preferredColor: Color, we: Boolean): User!
 }
 
 type Subscription {
-  gameUpdated(id: ID!): Game
-}
-
-type GameLink {
-  id: ID!
-  name: String
-  players: [String!]!
-}
-
-type Game {
-  id: ID!
-  map: Map!
-  regions: [Int!]!
-  turn: Int!
-  era: Int!
-  phase: Phase!
-  actionType: ActionType!
-  playerOrder: [Player!]!
-  activePlayer: Player!
-  plantMarket: [PlantInstance!]!
-  plants: [PlantInstance!]!
-  era3Plants: [PlantInstance!]!
-  discardedPlants: [PlantInstance!]!
-  possibleDeck: [PlantInstance!]!
-  plantPhaseEvents: [PlantPhaseEvent!]!
-  deckCount: Int!
-  cities: [CityInstance!]!
-  resourceMarket: Resources!
-  auction: Auction
-  restockRates: RestockRates!
-  plantRankBought: Int!
-  era2Start: Int!
-  gameEnd: Int!
-  version: Int!
-}
-
-type PlantPhaseEvent {
-  id: ID!
-  turn: Int!
-  player: Player!
-  plant: PlantInstance
-}
-
-type Map {
-  id: ID!
-  name: String!
-}
-
-type PopulatedMap {
-  id: ID!
-  name: String!
-  cities: [City!]!
-  connections: [Connection!]!
-}
-
-type Player {
-  id: ID!
-  clockwiseOrder: Int!
-  user: User!
-  color: Color!
-  money: Int!
-  resources: Resources!
-  plants: [PlantInstance!]!
+  gameStateUpdated(gameId: ID!): GameState
 }
 
 type User {
@@ -99,10 +34,47 @@ type User {
   we: Boolean!
 }
 
-type PlantInstance {
+type GameLink {
   id: ID!
-  plant: Plant!
-  status: PlantStatus!
+  name: String
+  players: [String!]!
+}
+
+type GameState {
+  info: GameStateInfo!
+  resourceMarket: Resources!
+  playerOrder: [Player!]!
+  plantMarket: [String!]!
+  era3Plants: [String!]!
+  discardedPlants: [String!]!
+  possibleDeck: [String!]!
+  deckCount: Int!
+  cityList: [CityInstance!]!
+  auction: Auction
+  plantPhaseEvents: [PlantPhaseEvent!]!
+}
+
+type GameStateInfo {
+  turn: Int!
+  era: Int!
+  phase: Phase!
+  actionType: ActionType!
+  activeUser: String!
+}
+
+type PlantPhaseEvent {
+  plantId: String
+  cost: Int
+  username: String!
+}
+
+type Player {
+  clockwiseOrder: Int!
+  username: String!
+  color: Color!
+  money: Int!
+  resources: Resources!
+  plantIds: [String!]!
 }
 
 type Plant {
@@ -121,9 +93,29 @@ type Resources {
 }
 
 type CityInstance {
+  cityId: String!
+  occupants: [String!]!
+}
+
+type Auction {
+  plantId: String!
+  bid: Int!
+  leader: String!
+  active: String!
+  passed: [String!]
+}
+
+type RestockRates {
+  era1: Resources!
+  era2: Resources!
+  era3: Resources!
+}
+
+type PopulatedMap {
   id: ID!
-  city: City!
-  players: [Player!]
+  name: String!
+  cities: [City!]!
+  connections: [Connection!]!
 }
 
 type City {
@@ -132,7 +124,6 @@ type City {
   lat: Float!
   lng: Float!
   region: Int!
-  map: Map!
 }
 
 type Connection {
@@ -141,19 +132,15 @@ type Connection {
   cities: [City!]!
 }
 
-type Auction {
+type Game {
   id: ID!
-  plant: PlantInstance!
-  bid: Int!
-  leadingPlayer: Player!
-  activePlayer: Player!
-  passedPlayers: [Player!]
-}
-
-type RestockRates {
-  era1: Resources!
-  era2: Resources!
-  era3: Resources!
+  map: PopulatedMap!
+  regions: [Int!]!
+  restockRates: RestockRates!
+  era2Start: Int!
+  gameEnd: Int!
+  cityCostHelper: String!
+  state: GameState
 }
 
 input ResourcesInput {
@@ -196,15 +183,6 @@ enum Color {
   GREEN
   PURPLE
   BLACK
-}
-
-enum PlantStatus {
-  REMOVED_BEFORE_START
-  DECK
-  MARKET
-  DISCARDED
-  ERA_THREE
-  OWNED
 }
 
 enum PlantResourceType {

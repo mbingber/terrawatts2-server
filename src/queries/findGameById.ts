@@ -1,89 +1,76 @@
 import { getRepository } from "typeorm";
+import * as seedrandom from 'seedrandom';
 import { Game } from "../entity/Game";
-import { redis } from "../redis";
-import { CityInstance } from "../entity/CityInstance";
-import { PlantInstance, PlantStatus } from "../entity/PlantInstance";
-import { PlantPhaseEvent } from "../entity/PlantPhaseEvent";
-import { Auction } from "../entity/Auction";
-import { Player } from "../entity/Player";
-import { performance } from "perf_hooks";
+import { Plant } from "../entity/Plant";
+import { User } from "../entity/User";
+import { Context } from "../logic/types/thunks";
+import { fetchMap } from "./fetchMap";
+import { GameState } from "../logic/types/gameState";
+import { getStore, attemptMove } from "../logic";
+import { Move, ActionType } from "../entity/Move";
+import { pubsub } from "../pubsub";
+import { getCurrentUser } from "../auth/getCurrentUser";
+import { getCityCostHelper } from "./getCityCostHelper";
 
 export const findGameById = async (id: number): Promise<Game> => {
-  const start = performance.now();
   const gameRepository = getRepository(Game);
-  const cityInstanceRepository = getRepository(CityInstance);
-  const plantInstanceRepository = getRepository(PlantInstance);
-  const plantPhaseEventRepository = getRepository(PlantPhaseEvent);
 
-  // const storedGameJSON = await redis.get(id);
-  // if (storedGameJSON) {
-  //   try {
-  //     const game = JSON.parse(storedGameJSON);
-  //     if (game && game.id) {
-  //       return game;
-  //     }
-  //   } catch {}
-  // }
-
-      
-  const game = await gameRepository
+  return gameRepository
     .createQueryBuilder("game")
     .leftJoinAndSelect("game.map", "map")
-    .leftJoinAndSelect("game.playerOrder", "player")
-    .leftJoinAndSelect("game.auction", "auction")
-    .leftJoinAndSelect("player.user", "user")
+    .leftJoinAndSelect("game.users", "user")
+    .leftJoinAndSelect("game.moves", "move")
     .where("game.id = :id", { id })
-    .orderBy("player.turnOrder")
     .getOne();
-
-  const mainQueryEnd = performance.now();
-
-  game.cities = await cityInstanceRepository
-    .find({
-      where: { game },
-      relations: ['city', 'players']
-    });
-
-  game.plants = await plantInstanceRepository
-    .find({
-      where: { game },
-      relations: ['plant', 'player'],
-    });
-
-  game.plantPhaseEvents = await plantPhaseEventRepository
-    .find({
-      where: { game, turn: game.turn },
-      relations: ['player']
-    });
-
-  const ownedPlants = game.plants.filter((plant) => plant.status === PlantStatus.OWNED);
-
-  game.playerOrder = game.playerOrder.map((player) => {
-    return {
-      ...player,
-      plants: ownedPlants.filter((plant) => plant.player.id === player.id)
-    }
-  });
-
-  game.activePlayer = game.playerOrder.find((player) => player.id === game.activePlayerId);
-
-  game.plantPhaseEvents = game.plantPhaseEvents.map((event) => ({
-    ...event,
-    plant: event.plantInstanceId && game.plants.find((p) => p.id === event.plantInstanceId)
-  }));
-
-  if (game.auction) {
-    game.auction.plant = game.plants.find((p) => p.id === game.auction.plantInstanceId);
-    game.auction.activePlayer = game.playerOrder.find((p) => p.id === game.auction.activePlayerId);
-    game.auction.leadingPlayer = game.playerOrder.find((p) => p.id === game.auction.leadingPlayerId);
-    game.auction.passedPlayers = game.playerOrder.filter((p) => game.auction.passedPlayerIds.includes(p.id));
-  }
-
-  const endOfQuery = performance.now();
-  console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-  console.log("MAIN QUERY TIME", mainQueryEnd - start);
-  console.log("WHOLE QUERY TIME", endOfQuery - start);
-
-  return game;
 }
 
+const buildContext = async (game: Game, user?: User, includeCityCostHelper: boolean = false): Promise<Context> => {
+  const plantRepository = getRepository(Plant);
+
+  const plantList = await plantRepository.find();
+  const map = await fetchMap(game.map.name, game.regions);
+
+  let cityCostHelper = {};
+
+  if (includeCityCostHelper) {
+    cityCostHelper = await getCityCostHelper(game.map.name, game.regions);
+  }
+
+  return {
+    game,
+    plantList,
+    cityList: map.cities,
+    cityCostHelper,
+    user,
+    rand: seedrandom(game.randomSeed),
+  };
+};
+
+export const getGameState = async (game: Game): Promise<GameState> => {
+  const context = await buildContext(game);
+  return getStore(context).getState();
+};
+
+// TODO: transactional?
+export const resolveMove = async (gameId: number, user: User, m: Partial<Move>) => {
+  // authenticate
+  await getCurrentUser(user);
+  
+  const game = await findGameById(gameId);
+  const context = await buildContext(game, user, m.actionType === ActionType.BUY_CITIES);
+
+  const move = new Move(m);
+  move.game = game;
+
+  const { isValid, message, state } = attemptMove(move, context);
+
+  if (isValid) {
+    // save move
+    await getRepository(Move).save(move);
+    // broadcast state
+    await pubsub.publish(`STATE_UPDATED.${game.id}`, { gameStateUpdated: state });
+    return state;
+  } else {
+    throw new Error("Validation error: " + message);
+  }
+}

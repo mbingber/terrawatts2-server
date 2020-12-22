@@ -5,34 +5,34 @@ import * as express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { importSchema } from 'graphql-import';
 import * as jwt from 'jsonwebtoken';
-import { createGame } from './logic/createGame/createGame';
-import { findGameById } from './queries/findGameById';
-import { getCityCostHelper } from './logic/buyCities/getCityCostHelper';
+import { findGameById, getGameState, resolveMove } from './queries/findGameById';
 import { fetchMap } from './queries/fetchMap';
-import { PlantStatus } from './entity/PlantInstance';
-import { getRestockRates } from './logic/powerUp/restockRates';
-import { cashMoney } from './logic/powerUp/makeMoney';
 import { createUser } from './auth/createUser';
 import { pubsub } from "./pubsub";
-import { GAME_UPDATED } from './logic/utils/saveGame';
-import { setPlayer } from './logic/setPlayer/setPlayer';
-import { setEra } from './logic/setEra/setEra';
 import { login } from './auth/login';
 import { getCurrentUser } from './auth/getCurrentUser';
-import { actionWrapper } from './logic/utils/actionWrapper';
-import { ActionType, Game } from './entity/Game';
 import { setPassword } from './auth/setPassword';
-import { numCitiesToStartEra2, numCitiesToEndGame } from './logic/powerUp/cityMilestones';
 import { setUserOnline, getOnlineUsernames } from './auth/onlineUsers';
 import { getMyRecentGames } from './auth/getMyRecentGames';
-import { buyResourcesGod } from './logic/buyResourcesGod';
 import { setUserPreferences } from './auth/setUserPreferences';
+import { createGame } from './queries/createGame';
+import { cashMoney } from './logic/utils/makeMoney';
+import { ActionType } from './entity/Move';
+import { getCityCostHelper } from './queries/getCityCostHelper';
+import { getRestockRatesForAllEras } from './logic/utils/restockRates';
+import { numCitiesToStartEra2, numCitiesToEndGame } from './logic/utils/cityMilestones';
+import { fetchPlants } from './queries/fetchPlants';
+import { GameState, PlantStatus, PlantInfo } from './logic/types/gameState';
+import { Game } from './entity/Game';
+
+const takeAction = (actionType: ActionType) => (_, args, { user }) => resolveMove(args.gameId, user, { ...args, actionType })
+const filterPlantStatus = (plants: Record<string, PlantInfo>, status: PlantStatus) => Object.keys(plants).filter(id => plants[id].status === status)
 
 const resolvers = {
   Query: {
     getGame: (_, { id }) => findGameById(id),
-    getCityCostHelper: (_, { mapName, regions }) => getCityCostHelper(mapName, regions).then(JSON.stringify),
     fetchMap: (_, { mapName, regions }) => fetchMap(mapName, regions),
+    fetchPlants: () => fetchPlants(),
     getRevenues: () => cashMoney,
     getCurrentUser: (_, __, { user }) => getCurrentUser(user),
     getOnlineUsernames: () => getOnlineUsernames(),
@@ -40,24 +40,21 @@ const resolvers = {
   },
   Mutation: {
     createGame: (_, { usernames, mapName, name, regions }) => createGame(usernames, mapName, name, regions),
-    putUpPlant: actionWrapper(ActionType.PUT_UP_PLANT),
-    bidOnPlant: actionWrapper(ActionType.BID_ON_PLANT),
-    discardPlant: actionWrapper(ActionType.DISCARD_PLANT),
-    buyResources: actionWrapper(ActionType.BUY_RESOURCES),
-    buyCities: actionWrapper(ActionType.BUY_CITIES),
-    powerUp: actionWrapper(ActionType.POWER_UP),
-    setPlayer: (_, { playerId, resources, money }) => setPlayer(+playerId, resources, money),
-    setEra: (_, { gameId, era }) => setEra(+gameId, era),
+    putUpPlant: takeAction(ActionType.PUT_UP_PLANT),
+    bidOnPlant: takeAction(ActionType.BID_ON_PLANT),
+    discardPlant: takeAction(ActionType.DISCARD_PLANT),
+    buyResources: takeAction(ActionType.BUY_RESOURCES),
+    buyCities: takeAction(ActionType.BUY_CITIES),
+    powerUp: takeAction(ActionType.POWER_UP),
     createUser: (_, { username, password, preferredColor, we }) => createUser(username, password, preferredColor, we),
     login: (_, { username, password }) => login(username, password),
     setPassword: (_, { username, password }) => setPassword(username, password),
     keepMeOnline: (_, __, { user }) => setUserOnline(user),
-    buyResourcesGod: (_, { gameId, playerId, resources }) => buyResourcesGod(gameId, playerId, resources),
     setUserPreferences: (_, { preferredColor, we }, { user }) => setUserPreferences(user, preferredColor, we)
   },
   Subscription: {
-    gameUpdated: {
-      subscribe: (_, args) => pubsub.asyncIterator(`${GAME_UPDATED}.${args.id}`)
+    gameStateUpdated: {
+      subscribe: (_, args) => pubsub.asyncIterator(`STATE_UPDATED.${args.gameId}`)
     }
   },
   PopulatedMap: {
@@ -70,17 +67,36 @@ const resolvers = {
     lng: ({ lng }) => lng || 0,
   },
   Game: {
-    plantMarket: ({ plants }) => plants
-      .filter((plantInstance) => plantInstance.status === PlantStatus.MARKET)
-      .sort((a, b) => a.plant.rank - b.plant.rank),
-    deckCount: ({ plants }) => plants
-      .filter((plantInstance) => plantInstance.status === PlantStatus.DECK)
-      .length,
-    possibleDeck: ({ plants, era, map }) => plants.filter(({ status, plant }) => {
-      if (map.name === 'China') {
-        return status === PlantStatus.DECK && (plant.rank < 36 || era === 3);
+    map: ({ map, regions }) => fetchMap(map.name, regions),
+    cityCostHelper: ({ map, regions }) => getCityCostHelper(map.name, regions).then(JSON.stringify),
+    restockRates: ({ users, map }) => getRestockRatesForAllEras(map.name, users.length),
+    era2Start: ({ users }) => numCitiesToStartEra2(users.length),
+    gameEnd: ({ users }) => numCitiesToEndGame(users.length),
+    state: (game) => getGameState(game),
+  },
+  GameState: {
+    plantMarket: ({ plants }: GameState) => filterPlantStatus(plants, PlantStatus.MARKET),
+    playerOrder: ({ playerOrder, plants, plantPhaseEvents, info: { actionType, activeUser } }: GameState) => {
+      let discardEdgeCase = null;
+
+      if (actionType === ActionType.DISCARD_PLANT) {
+        const event = plantPhaseEvents.find(e => e.username === activeUser);
+        if (event && event.plantId) {
+          discardEdgeCase = event.plantId;
+        }
       }
       
+      return playerOrder.map(player => ({
+        ...player,
+        plantIds: Object.keys(plants)
+          .filter(plantId => plants[plantId].owner === player.username)
+          .filter(plantId => plantId !== discardEdgeCase)
+      }));
+    },
+    deckCount: ({ plants }: GameState): number => filterPlantStatus(plants, PlantStatus.DECK).length,
+    possibleDeck: ({ plants, info: { era } }: GameState) => Object.keys(plants).filter(id => {
+      const { status } = plants[id];
+
       if (status === PlantStatus.DECK) {
         return true;
       }
@@ -88,41 +104,13 @@ const resolvers = {
       if (status === PlantStatus.REMOVED_BEFORE_START) {
         return era < 3;
       }
-    }).sort((a, b) => a.plant.rank - b.plant.rank),
-    discardedPlants: ({ plants }) => plants
-      .filter((plantInstance) => plantInstance.status === PlantStatus.DISCARDED)
-      .sort((a, b) => a.plant.rank - b.plant.rank),
-    era3Plants: ({ plants, turn, map, era }) => {
-      if (map.name === 'China') {
-        if (era === 3) return [];
-        return plants.filter(p => p.status === PlantStatus.DECK && p.plant.rank >= 36);
-      }
-      
-      const era3Plants = plants
-        .filter((plantInstance) => plantInstance.status === PlantStatus.ERA_THREE)
-        .sort((a, b) => a.plant.rank - b.plant.rank);
-
-      if (era3Plants.length === 0 && turn > 1) {
-        return plants
-          .filter((plantInstance) => plantInstance.status === PlantStatus.DECK)
-          .sort((a, b) => a.plant.rank - b.plant.rank);
-      }
-      return era3Plants;
-    },
-    restockRates: ({ playerOrder, map }) => getRestockRates(map.name, playerOrder.length),
-    playerOrder: ({ plants, playerOrder }) => playerOrder.map((player) => ({
-      ...player,
-      ownedPlants: plants.filter((p) => p.status === PlantStatus.OWNED)
+    }),
+    discardedPlants: ({ plants }: GameState) => filterPlantStatus(plants, PlantStatus.DISCARDED),
+    era3Plants: ({ plants }: GameState) => filterPlantStatus(plants, PlantStatus.ERA_THREE),
+    cityList: ({ cities }: GameState) => Object.keys(cities).map(cityId => ({
+      cityId,
+      occupants: cities[cityId] || []
     })),
-    era2Start: ({ playerOrder }) => numCitiesToStartEra2(playerOrder.length),
-    gameEnd: ({ playerOrder }) => numCitiesToEndGame(playerOrder.length),
-  },
-  Player: {
-    plants: (player) => player.ownedPlants
-      .filter((plantInstance) => (
-        plantInstance.player &&
-        plantInstance.player.id === player.id
-      ))
   }
 };
 
