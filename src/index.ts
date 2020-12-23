@@ -23,7 +23,8 @@ import { deleteLastMove } from './queries/deleteLastMove';
 import { getRestockRatesForAllEras } from './logic/utils/restockRates';
 import { numCitiesToStartEra2, numCitiesToEndGame } from './logic/utils/cityMilestones';
 import { fetchPlants } from './queries/fetchPlants';
-import { GameState, PlantStatus, PlantInfo } from './logic/types/gameState';
+import { PlantStatus, PlantInfo } from './logic/types/gameState';
+import { GameState } from './logic/rootReducer';
 
 const takeAction = (actionType: ActionType) => (_, args, { user }) => resolveMove(args.gameId, user, { ...args, actionType })
 const filterPlantStatus = (plants: Record<string, PlantInfo>, status: PlantStatus) => Object.keys(plants).filter(id => plants[id].status === status)

@@ -1,5 +1,5 @@
 import { Phase, ActionType, Player, PlantInfo } from "../types/gameState";
-import { createSelector } from "reselect";
+import { createSelector } from '@reduxjs/toolkit';
 import { selectActiveUser, selectPhase, selectPlantPhaseEvents, selectActionType, selectAuction, selectPlayerOrder, selectCities, selectPlants } from "./info.selectors";
 import { selectPlantMap } from "./props.selectors";
 import { Plant } from "../../entity/Plant";

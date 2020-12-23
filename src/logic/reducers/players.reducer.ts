@@ -1,47 +1,32 @@
-import { createReducer } from "redux-act";
-import { Player } from "../types/gameState";
-import { addResourcesToPlayer, makePlayerMoney, setPlayerResources, setPlayers } from "../actions/players.actions";
+import { createReducer } from '@reduxjs/toolkit';
+import { Player } from '../types/gameState';
+import { addResourcesToPlayer, makePlayerMoney, setPlayerResources, setPlayers } from '../actions/players.actions';
 
-const reducer = createReducer<Player[]>({}, null);
-
-reducer.on(setPlayers, (_, players) => players);
-
-reducer.on(addResourcesToPlayer, (players, { me, resources }) => players.map(player => {
-  if (player.username !== me) {
-    return player;
-  }
-
-  return {
-    ...player,
-    resources: {
-      coal: player.resources.coal + resources.coal,
-      oil: player.resources.oil + resources.oil,
-      trash: player.resources.trash + resources.trash,
-      uranium: player.resources.uranium + resources.uranium,
-    },
-  };
-}));
-
-reducer.on(makePlayerMoney, (players, { name, amount }) => players.map(player => {
-  if (player.username !== name) {
-    return player;
-  }
-
-  return {
-    ...player,
-    money: player.money + amount,
-  };
-}));
-
-reducer.on(setPlayerResources, (players, { me, resources }) => players.map(player => {
-  if (player.username !== me) {
-    return player;
-  }
-
-  return {
-    ...player,
-    resources,
-  };
-}))
-
-export default reducer;
+export default createReducer<Player[]>([], builder => {
+  builder
+    .addCase(setPlayers, (_, action) => action.payload)
+    .addCase(addResourcesToPlayer, (state, action) => {
+      const { me, resources } = action.payload;
+      const player = state.find(p => p.username === me);
+      if (player) {
+        player.resources.coal += resources.coal;
+        player.resources.oil += resources.oil;
+        player.resources.trash += resources.trash;
+        player.resources.uranium += resources.uranium;
+      }
+    })
+    .addCase(makePlayerMoney, (state, action) => {
+      const { name, amount } = action.payload;
+      const player = state.find(p => p.username === name);
+      if (player) {
+        player.money += amount;
+      }
+    })
+    .addCase(setPlayerResources, (state, action) => {
+      const { me, resources } = action.payload;
+      const player = state.find(p => p.username === me);
+      if (player) {
+        player.resources = resources;
+      }
+    });
+});

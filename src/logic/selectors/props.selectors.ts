@@ -1,8 +1,8 @@
-import { GameState } from "../types/gameState";
-import { createSelector } from "reselect";
-import { Plant } from "../../entity/Plant";
-import { City } from "../../entity/City";
-import { Game } from "../../entity/Game";
+import { GameState } from '../rootReducer';
+import { createSelector } from '@reduxjs/toolkit';
+import { Plant } from '../../entity/Plant';
+import { City } from '../../entity/City';
+import { Game } from '../../entity/Game';
 
 export const selectPlantsOffProps = (_: GameState, props: { plantList: Plant[] }) => props.plantList;
 export const selectCityList = (_: GameState, props: { cityList: City[] }) => props.cityList;

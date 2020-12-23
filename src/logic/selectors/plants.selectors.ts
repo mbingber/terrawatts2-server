@@ -1,4 +1,4 @@
-import { createSelector } from "reselect";
+import { createSelector } from '@reduxjs/toolkit';
 import { selectPlantPhaseEvents, selectPlants, selectEra } from "./info.selectors";
 import { selectNumPlayers, selectMyResources, selectMe } from "./players.selectors";
 import { PlantStatus } from "../types/gameState";

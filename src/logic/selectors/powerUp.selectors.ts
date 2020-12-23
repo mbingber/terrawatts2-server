@@ -1,4 +1,4 @@
-import { createSelector } from "reselect";
+import { createSelector } from '@reduxjs/toolkit';
 import { selectPlantsOffProps, selectPlantIdsFromProps, selectHybridChoice, selectMapName } from "./props.selectors";
 import { selectMyResources, selectMe, selectNumPlayers } from "./players.selectors";
 import { ResourceType, Resources } from "../types/gameState";

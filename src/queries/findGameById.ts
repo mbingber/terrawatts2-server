@@ -5,7 +5,7 @@ import { Plant } from "../entity/Plant";
 import { User } from "../entity/User";
 import { Context } from "../logic/types/thunks";
 import { fetchMap } from "./fetchMap";
-import { GameState } from "../logic/types/gameState";
+import { GameState } from "../logic/rootReducer";
 import { getStore, attemptMove } from "../logic";
 import { Move, ActionType } from "../entity/Move";
 import { pubsub } from "../pubsub";

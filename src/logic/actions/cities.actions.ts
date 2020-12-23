@@ -1,4 +1,4 @@
-import { createAction } from "redux-act";
+import { createAction } from '@reduxjs/toolkit';
 import { Thunk } from "../types/thunks";
 import { selectMaxNumCities } from "../selectors/cities.selectors";
 import { selectLowestPlantInMarket } from "../selectors/plants.selectors";

@@ -1,5 +1,5 @@
 import { PlantStatus, ActionType, Phase } from "../types/gameState";
-import { createAction } from "redux-act";
+import { createAction } from '@reduxjs/toolkit';
 import { Thunk } from "../types/thunks";
 import { chargePlayerMoney } from "./players.actions";
 import { recordPlantPhaseEvent } from "./plantPhaseEvents.actions";
