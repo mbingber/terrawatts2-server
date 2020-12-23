@@ -50,6 +50,9 @@ export class Move {
   @ManyToOne(() => Game, game => game.moves)
   game: Game;
 
+  @Column({ default: false })
+  isDeleted: boolean;
+
   constructor(m: Partial<Move> = {}) {
     this.actionType = m.actionType;
     this.plantId = m.plantId;

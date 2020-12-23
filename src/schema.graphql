@@ -16,6 +16,7 @@ type Mutation {
   buyResources(gameId: ID!, resources: ResourcesInput!, cost: Int!): GameState!
   buyCities(gameId: ID!, cityIds: [String!]!, cost: Int!): GameState!
   powerUp(gameId: ID!, plantIds: [String!]!, hybridChoice: HybridChoiceInput): GameState!
+  undo(gameId: ID!): GameState!
   createUser(username: String!, password: String!, preferredColor: Color, we: Boolean!): User
   login(username: String!, password: String!): LoginResponse!
   setPassword(username: String!, password: String!): User

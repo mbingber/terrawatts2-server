@@ -42,7 +42,5 @@ interface PowerUpArgs extends MoveArgsBase {
 export type MoveArgs = PutUpPlantArgs | BidOnPlantArgs | DiscardPlantArgs | BuyResourcesArgs | BuyCitiesArgs | PowerUpArgs;
 
 export const createMove = (args: MoveArgs): Move => {
-  const move = new Move();
-  Object.keys(args).forEach(arg => move[arg] = args[arg]);
-  return move;
+  return new Move(args);
 };

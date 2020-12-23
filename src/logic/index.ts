@@ -25,7 +25,9 @@ export const gameStateReducer: Reducer<GameState, AnyAction> = combineReducers({
 });
 
 const executeMove = (move: Move, store) => {
-  store.dispatch(makeMove(move));
+  if (!move.isDeleted) {
+    store.dispatch(makeMove(move));
+  }
 };
 
 export const getGenericStore = <T>(context: Context, reducer: Reducer<T, AnyAction>, getInitialState: (c: Context) => T): Store<T, AnyAction> => {

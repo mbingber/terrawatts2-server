@@ -19,11 +19,11 @@ import { createGame } from './queries/createGame';
 import { cashMoney } from './logic/utils/makeMoney';
 import { ActionType } from './entity/Move';
 import { getCityCostHelper } from './queries/getCityCostHelper';
+import { deleteLastMove } from './queries/deleteLastMove';
 import { getRestockRatesForAllEras } from './logic/utils/restockRates';
 import { numCitiesToStartEra2, numCitiesToEndGame } from './logic/utils/cityMilestones';
 import { fetchPlants } from './queries/fetchPlants';
 import { GameState, PlantStatus, PlantInfo } from './logic/types/gameState';
-import { Game } from './entity/Game';
 
 const takeAction = (actionType: ActionType) => (_, args, { user }) => resolveMove(args.gameId, user, { ...args, actionType })
 const filterPlantStatus = (plants: Record<string, PlantInfo>, status: PlantStatus) => Object.keys(plants).filter(id => plants[id].status === status)
@@ -46,6 +46,7 @@ const resolvers = {
     buyResources: takeAction(ActionType.BUY_RESOURCES),
     buyCities: takeAction(ActionType.BUY_CITIES),
     powerUp: takeAction(ActionType.POWER_UP),
+    undo: (_, { gameId }) => deleteLastMove(gameId),
     createUser: (_, { username, password, preferredColor, we }) => createUser(username, password, preferredColor, we),
     login: (_, { username, password }) => login(username, password),
     setPassword: (_, { username, password }) => setPassword(username, password),
