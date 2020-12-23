@@ -20,9 +20,13 @@ export const createGame = async (
     throw new Error('ERROR: invalid number of players');
   }
 
+  console.log("USERNAMES:", usernames);
+
   const users: User[] = await userRepository.find({
     where: usernames.map(u => ({ username: u }))
   });
+
+  console.log("USERS:", users);
 
   if (users.length !== usernames.length) {
     throw new Error('ERROR: could not find all users');
