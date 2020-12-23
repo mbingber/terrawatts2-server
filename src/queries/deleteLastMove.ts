@@ -1,8 +1,8 @@
-import { GameState } from "../logic/types/gameState";
-import { findGameById, getGameState } from "./findGameById";
-import { getRepository } from "typeorm";
-import { Move } from "../entity/Move";
-import { pubsub } from "../pubsub";
+import { GameState } from '../logic/rootReducer';
+import { findGameById, getGameState } from './findGameById';
+import { getRepository } from 'typeorm';
+import { Move } from '../entity/Move';
+import { pubsub } from '../pubsub';
 
 // TODO: this is completely unauthenticated right now
 export const deleteLastMove = async (gameId: number): Promise<GameState> => {

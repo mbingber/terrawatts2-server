@@ -1,4 +1,4 @@
-import { createAction } from 'redux-act';
+import { createAction } from '@reduxjs/toolkit';
 import { ActionType } from '../types/gameState';
 
 export const advanceTurn = createAction('Advance turn');

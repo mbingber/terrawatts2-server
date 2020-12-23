@@ -1,4 +1,4 @@
-import { createAction } from "redux-act";
+import { createAction } from '@reduxjs/toolkit';
 import { Resources, Player } from "../types/gameState";
 import { Thunk } from "../types/thunks";
 import { selectNewTurnOrder } from "../selectors/players.selectors";

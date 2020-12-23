@@ -1,16 +1,14 @@
-import { createReducer } from "redux-act";
-import { Resources } from "../types/gameState";
-import { setResourceMarket, purchaseResourcesFromMarket } from "../actions/resourceMarket.actions";
+import { createReducer } from '@reduxjs/toolkit';
+import { Resources } from '../types/gameState';
+import { setResourceMarket, purchaseResourcesFromMarket } from '../actions/resourceMarket.actions';
 
-const reducer = createReducer<Resources>({}, null);
-
-reducer.on(setResourceMarket, (_, resourceMarket) => resourceMarket);
-
-reducer.on(purchaseResourcesFromMarket, (resourceMarket, purchase) => ({
-  coal: resourceMarket.coal - purchase.coal,
-  oil: resourceMarket.oil - purchase.oil,
-  trash: resourceMarket.trash - purchase.trash,
-  uranium: resourceMarket.uranium - purchase.uranium,
-}));
-
-export default reducer;
+export default createReducer<Resources>(null, builder => {
+  builder
+    .addCase(setResourceMarket, (_, action) => action.payload)
+    .addCase(purchaseResourcesFromMarket, (state, action) => {
+      state.coal -= action.payload.coal;
+      state.oil -= action.payload.oil;
+      state.trash -= action.payload.trash;
+      state.uranium -= action.payload.uranium;
+    })
+});

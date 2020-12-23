@@ -1,4 +1,4 @@
-import { createAction } from "redux-act";
+import { createAction } from '@reduxjs/toolkit';
 import { PlantPhaseEvent } from "../types/gameState";
 
 export const recordPlantPhaseEvent = createAction<PlantPhaseEvent>('Record plant phase event');

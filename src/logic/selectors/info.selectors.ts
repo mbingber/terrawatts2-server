@@ -1,4 +1,4 @@
-import { GameState } from "../types/gameState";
+import { GameState } from '../rootReducer';
 
 export const selectEra = (state: GameState) => state.info.era;
 export const selectTurn = (state: GameState) => state.info.turn;

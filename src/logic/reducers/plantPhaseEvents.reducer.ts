@@ -1,10 +1,11 @@
-import { createReducer } from "redux-act";
+import { createReducer } from '@reduxjs/toolkit';
 import { PlantPhaseEvent } from "../types/gameState";
 import { recordPlantPhaseEvent, clearPlantPhaseEvents } from "../actions/plantPhaseEvents.actions";
 
-const reducer = createReducer<PlantPhaseEvent[]>({}, null);
-
-reducer.on(recordPlantPhaseEvent, (events, event) => [...events, event]);
-reducer.on(clearPlantPhaseEvents, () => []);
-
-export default reducer;
+export default createReducer<PlantPhaseEvent[]>([], builder => {
+  builder
+    .addCase(recordPlantPhaseEvent, (state, action) => {
+      state.push(action.payload);
+    })
+    .addCase(clearPlantPhaseEvents, () => [])
+});

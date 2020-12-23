@@ -1,11 +1,12 @@
-import { Validator } from "./validator";
-import { selectResourceMarket } from "../selectors/info.selectors";
-import { ResourceType, Resources, GameState } from "../types/gameState";
-import { selectMyMoney, selectMyResources } from "../selectors/players.selectors";
-import { selectMyResourceCapacity } from "../selectors/plants.selectors";
-import { Context } from "../types/thunks";
-import { Move } from "../../entity/Move";
-import { PlantResourceType } from "../../entity/Plant";
+import { Validator } from './validator';
+import { selectResourceMarket } from '../selectors/info.selectors';
+import { GameState } from '../rootReducer';
+import { ResourceType, Resources } from '../types/gameState';
+import { selectMyMoney, selectMyResources } from '../selectors/players.selectors';
+import { selectMyResourceCapacity } from '../selectors/plants.selectors';
+import { Context } from '../types/thunks';
+import { Move } from '../../entity/Move';
+import { PlantResourceType } from '../../entity/Plant';
 
 const getSingleResourceCost = (
   market: Resources,

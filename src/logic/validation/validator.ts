@@ -1,4 +1,4 @@
-import { GameState } from '../types/gameState';
+import { GameState } from '../rootReducer';
 import { Context } from '../types/thunks';
 import { Move } from '../../entity/Move';
 

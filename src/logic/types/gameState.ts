@@ -70,13 +70,3 @@ export type PlantPhaseEvent = {
   cost?: number;
   username: string;
 }
-
-export type GameState = {
-  info: Info;
-  resourceMarket: Resources;
-  playerOrder: Player[];
-  plants: Record<string, PlantInfo>; // key is plant id from DB
-  cities: Record<string, string[]>; // key is city id from DB, value is array of usernames
-  auction: Auction | null;
-  plantPhaseEvents: PlantPhaseEvent[];
-}
