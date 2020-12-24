@@ -19,12 +19,12 @@ const powerUpValidators: Validator[] = [
       return Object.values(resourcesAfterPowering).every(val => val >= 0);
     },
     message: "You don't have enough resources",
-  }, {
-    validate: ({ plantIds, hybridChoice }, state, { plantList }) => {
-      const choiceNeeded = selectHybridChoiceNeeded(state, { plantIds, plantList });
-      return !hybridChoice || choiceNeeded;
-    },
-    message: "You did not need to provide hybrid choice",
+  // }, {
+  //   validate: ({ plantIds, hybridChoice }, state, { plantList }) => {
+  //     const choiceNeeded = selectHybridChoiceNeeded(state, { plantIds, plantList });
+  //     return !hybridChoice || choiceNeeded;
+  //   },
+  //   message: "You did not need to provide hybrid choice",
   }, {
     validate: ({ plantIds, hybridChoice }, state, { plantList }) => {
       const choiceNeeded = selectHybridChoiceNeeded(state, { plantIds, plantList });
