@@ -41,6 +41,8 @@ const putUpPlant: MoveThunk = ({ plantId, bid }) => (dispatch, getState) => {
 
 const bidOnPlant: MoveThunk = ({ bid }) => (dispatch, getState) => {
   const me = selectMe(getState());
+  // figure out next bidder before passed array has been messed with
+  const nextBidder = selectNextAuctionBidder(getState());
 
   if (bid) {
     dispatch(setAuctionBid(bid));
@@ -56,7 +58,6 @@ const bidOnPlant: MoveThunk = ({ bid }) => (dispatch, getState) => {
     dispatch(setActionType(ActionType.PUT_UP_PLANT));
     dispatch(obtainPlant(auction.plantId, auction.bid, auction.leader));
   } else {
-    const nextBidder = selectNextAuctionBidder(getState());
     dispatch(setAuctionActiveUser(nextBidder));
   }
 };
