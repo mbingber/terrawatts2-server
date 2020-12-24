@@ -11,7 +11,7 @@ export const enforceCityPlantMarketRule = (): Thunk => (dispatch, getState, { pl
   const maxNumCities = selectMaxNumCities(getState());
   const lowestPlant = selectLowestPlantInMarket(getState(), { plantList });
 
-  if (lowestPlant.rank <= maxNumCities) {
+  if (lowestPlant && lowestPlant.rank <= maxNumCities) {
     dispatch(discardLowestPlant());
     dispatch(enforceCityPlantMarketRule());
   }
