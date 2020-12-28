@@ -25,6 +25,7 @@ export enum Color {
 
 export enum PlantStatus {
   REMOVED_BEFORE_START = 'REMOVED_BEFORE_START',
+  REMOVED_BEFORE_START_FIXED = 'REMOVED_BEFORE_START_FIXED', // i.e. China
   DECK = 'DECK',
   MARKET = 'MARKET',
   DISCARDED = 'DISCARDED',

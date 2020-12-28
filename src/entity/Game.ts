@@ -12,6 +12,7 @@ export class Game {
   @Column({ default: "" })
   name: string;
 
+  // this is saved as a string[], but is converted to a number[] in findGameById
   @Column('simple-array')
   regions: number[];
 

@@ -99,6 +99,11 @@ const resolvers = {
     possibleDeck: ({ plants, info: { era } }: GameState) => Object.keys(plants).filter(id => {
       const { status } = plants[id];
 
+      if (status === PlantStatus.REMOVED_BEFORE_START_FIXED) {
+        // the plants removed in the China rules should not get sent because they are not random
+        return false;
+      }
+
       if (status === PlantStatus.DECK) {
         return true;
       }

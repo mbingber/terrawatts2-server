@@ -15,13 +15,16 @@ import { getCityCostHelper } from "./getCityCostHelper";
 export const findGameById = async (id: number): Promise<Game> => {
   const gameRepository = getRepository(Game);
 
-  return gameRepository
+  const game = await gameRepository
     .createQueryBuilder("game")
     .leftJoinAndSelect("game.map", "map")
     .leftJoinAndSelect("game.users", "user")
     .leftJoinAndSelect("game.moves", "move")
     .where("game.id = :id", { id })
     .getOne();
+
+  game.regions = game.regions.map(Number);
+  return game;
 }
 
 const buildContext = async (game: Game, user?: User, includeCityCostHelper: boolean = false): Promise<Context> => {

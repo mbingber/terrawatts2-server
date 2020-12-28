@@ -84,7 +84,7 @@ const createInitialPlantsChina = (plants: Plant[], numPlayers: number): Record<n
     let status = PlantStatus.DECK;
 
     if (chinaRemoval[numPlayers].includes(plant.rank)) {
-      status = PlantStatus.REMOVED_BEFORE_START;
+      status = PlantStatus.REMOVED_BEFORE_START_FIXED;
     } else if (marketSize < numPlayers) {
       status = PlantStatus.MARKET;
       marketSize++;
@@ -119,7 +119,6 @@ export const createInitialPlants = (
   const plants: Plant[] = Object.values(rankToPlants).map(plantSubset => {
     const matchedPlant = plantSubset.find(p => p.mapName === mapName && regions.includes(p.region));
     const defaultPlant = plantSubset.find(p => !p.mapName) as Plant;
-
     return matchedPlant || defaultPlant;
   }).filter(x => !!x);
 
