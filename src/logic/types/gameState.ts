@@ -1,3 +1,5 @@
+import { Color } from '../../entity/User';
+
 export enum Phase {
   PLANT = 'PLANT',
   RESOURCE = 'RESOURCE',
@@ -12,15 +14,6 @@ export enum ActionType {
   BUY_RESOURCES = 'BUY_RESOURCES',
   BUY_CITIES = 'BUY_CITIES',
   POWER_UP = 'POWER_UP'
-}
-
-export enum Color {
-  BLUE = 'BLUE',
-  RED = 'RED',
-  YELLOW = 'YELLOW',
-  GREEN = 'GREEN',
-  PURPLE = 'PURPLE',
-  BLACK = 'BLACK'
 }
 
 export enum PlantStatus {
@@ -64,6 +57,7 @@ export type Info = {
   phase: Phase;
   actionType: ActionType;
   activeUser: string;
+  
 }
 
 export type PlantPhaseEvent = {

@@ -13,10 +13,10 @@ export const selectGetsPlantAtFace = createSelector(
 export const selectPlayerPlantIds = createSelector(
   [selectPlants, selectMe, (_, props) => props.username],
   (plants, me, username) => Object.keys(plants)
-  .filter((plantId) => {
-    const { status, owner } = plants[plantId];
-    return status === PlantStatus.OWNED && owner === (username || me);
-  })
+    .filter((plantId) => {
+      const { status, owner } = plants[plantId];
+      return status === PlantStatus.OWNED && owner === (username || me);
+    })
 );
 
 export const selectMustDiscardPlant = createSelector(

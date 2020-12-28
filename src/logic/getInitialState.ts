@@ -1,8 +1,8 @@
-import { Phase, ActionType, Player, Color, Resources, PlantInfo, PlantStatus } from './types/gameState';
+import { Phase, ActionType, Player, Resources, PlantInfo, PlantStatus } from './types/gameState';
 import { GameState } from './rootReducer';
 import { shuffle } from './utils/shuffle';
 import { Context } from './types/thunks';
-import { User } from '../entity/User';
+import { User, Color } from '../entity/User';
 import { Plant } from '../entity/Plant';
 
 const getStartingResourceMarket = (mapName: string): Resources => {

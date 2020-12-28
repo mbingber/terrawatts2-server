@@ -1,29 +1,41 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { selectPlantsOffProps, selectPlantIdsFromProps, selectHybridChoice, selectMapName } from "./props.selectors";
-import { selectMyResources, selectMe, selectNumPlayers } from "./players.selectors";
-import { ResourceType, Resources } from "../types/gameState";
-import { selectCities, selectPlayerOrder, selectEra, selectResourceMarket } from "./info.selectors";
-import { makeMoney } from "../utils/makeMoney";
-import { getRestockRates } from "../utils/restockRates";
-import { PlantResourceType } from "../../entity/Plant";
+import {
+  selectPlantsOffProps,
+  selectPlantIdsFromProps,
+  selectHybridChoice,
+  selectMapName
+} from './props.selectors';
+import { selectMyResources, selectMe, selectNumPlayers } from './players.selectors';
+import { ResourceType, Resources } from '../types/gameState';
+import {
+  selectCities,
+  selectPlayerOrder,
+  selectEra,
+  selectResourceMarket,
+} from './info.selectors';
+import { makeMoney } from '../utils/makeMoney';
+import { getRestockRates } from '../utils/restockRates';
+import { PlantResourceType, Plant } from '../../entity/Plant';
 
 const selectPlantsPowering = createSelector(
   [selectPlantsOffProps, selectPlantIdsFromProps],
   (plantList, plantIds) => plantList.filter(plant => plantIds.includes('' + plant.id))
 );
 
+export const getResourcesNeededToPower = (plants: Plant[]) => plants
+  .reduce<Partial<Record<PlantResourceType, number>>>((acc, plant) => {
+    const { resourceType, resourceBurn } = plant;
+
+    if (resourceType !== PlantResourceType.WIND) {
+      acc[resourceType] = (acc[resourceType] || 0) + resourceBurn;
+    }
+    
+    return acc;
+  }, {});
+
 export const selectResourcesNeededToPower = createSelector(
   selectPlantsPowering,
-  (plants) => plants
-    .reduce<Partial<Record<PlantResourceType, number>>>((acc, plant) => {
-      const { resourceType, resourceBurn } = plant;
-
-      if (resourceType !== PlantResourceType.WIND) {
-        acc[resourceType] = (acc[resourceType] || 0) + resourceBurn;
-      }
-      
-      return acc;
-    }, {})
+  getResourcesNeededToPower
 );
 
 export const selectHybridChoiceNeeded = createSelector(
@@ -124,7 +136,7 @@ export const selectRestockedResourceMarket = createSelector(
   (restockRates, resourcesHeld, resourceMarket) => {
       const newResourceMarket = Object.keys(restockRates).reduce<Partial<Resources>>((acc, r) => {
         const type = r as ResourceType;
-        const total = type === "uranium" ? 12 : 24;
+        const total = type === 'uranium' ? 12 : 24;
         const held = resourcesHeld[type];
         const inMarket = resourceMarket[type];
         const toRestock = restockRates[type];
