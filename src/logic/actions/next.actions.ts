@@ -7,7 +7,7 @@ import { selectPlantMarketLength } from '../selectors/plants.selectors';
 import { setTurnOrder } from './players.actions';
 import { Phase, ActionType } from '../types/gameState';
 import { selectMaxNumCities } from '../selectors/cities.selectors';
-import { numCitiesToStartEra2 } from '../utils/cityMilestones';
+import { numCitiesToStartEra2, numCitiesToEndGame } from '../utils/cityMilestones';
 import { selectRestockedResourceMarket } from '../selectors/powerUp.selectors';
 import { setResourceMarket } from './resourceMarket.actions';
 import { clearPlantPhaseEvents } from './plantPhaseEvents.actions';

@@ -1,5 +1,6 @@
 type Query {
   getGame(id: ID!): Game
+  getGameOverData(id: ID!): GameOverData
   fetchMap(mapName: String!, regions: [Int]): PopulatedMap!
   fetchPlants: [Plant!]!
   getRevenues: [Int!]!
@@ -53,6 +54,7 @@ type GameState {
   cityList: [CityInstance!]!
   auction: Auction
   plantPhaseEvents: [PlantPhaseEvent!]!
+  isOver: Boolean!
 }
 
 type GameStateInfo {
@@ -142,6 +144,19 @@ type Game {
   gameEnd: Int!
   cityCostHelper: String!
   state: GameState
+}
+
+type GameOverPlayer {
+  username: String!
+  color: Color!
+  numPowered: Int!
+  money: Int!
+  won: Boolean!
+}
+
+type GameOverData {
+  isOver: Boolean!
+  winOrder: [GameOverPlayer!]!
 }
 
 input ResourcesInput {

@@ -24,7 +24,7 @@ export const findGameById = async (id: number): Promise<Game> => {
     .getOne();
 }
 
-const buildContext = async (game: Game, user?: User, includeCityCostHelper: boolean = false): Promise<Context> => {
+export const buildContext = async (game: Game, user?: User, includeCityCostHelper: boolean = false): Promise<Context> => {
   const plantRepository = getRepository(Plant);
 
   const plantList = await plantRepository.find();

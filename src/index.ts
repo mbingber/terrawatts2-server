@@ -25,6 +25,8 @@ import { numCitiesToStartEra2, numCitiesToEndGame } from './logic/utils/cityMile
 import { fetchPlants } from './queries/fetchPlants';
 import { PlantStatus, PlantInfo } from './logic/types/gameState';
 import { GameState } from './logic/rootReducer';
+import { selectIsGameOver } from './logic/selectors/end.selectors';
+import { getGameOverData } from './queries/getGameOverData';
 
 const takeAction = (actionType: ActionType) => (_, args, { user }) => resolveMove(args.gameId, user, { ...args, actionType })
 const filterPlantStatus = (plants: Record<string, PlantInfo>, status: PlantStatus) => Object.keys(plants).filter(id => plants[id].status === status)
@@ -32,6 +34,7 @@ const filterPlantStatus = (plants: Record<string, PlantInfo>, status: PlantStatu
 const resolvers = {
   Query: {
     getGame: (_, { id }) => findGameById(id),
+    getGameOverData: (_, { id }) => getGameOverData(id),
     fetchMap: (_, { mapName, regions }) => fetchMap(mapName, regions),
     fetchPlants: () => fetchPlants(),
     getRevenues: () => cashMoney,
@@ -113,6 +116,7 @@ const resolvers = {
       cityId,
       occupants: cities[cityId] || []
     })),
+    isOver: (state: GameState) => selectIsGameOver(state)
   }
 };
 
