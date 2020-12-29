@@ -59,6 +59,8 @@ const selectNumPoweredMap = createSelector(
         .filter((plants) => {
           // leave only the options that the player has enough resources to power
           const resourcesNeeded = getResourcesNeededToPower(plants);
+          console.log("PLANTS", plants.map(p => p.rank));
+          console.log("RESOURCESNEEDED", resourcesNeeded);
           return [
             PlantResourceType.COAL,
             PlantResourceType.OIL,
@@ -67,11 +69,15 @@ const selectNumPoweredMap = createSelector(
             PlantResourceType.HYBRID // last for a reason
           ].every(resourceType => {
             const needed = resourcesNeeded[resourceType];
+            console.log("!!!", resourceType, needed);
             if (!needed) {
+              console.log("NOT NEEDED");
               return true;
             } else if (resourceType === PlantResourceType.HYBRID) {
+              console.log("hybrid", ownedResources.coal, ownedResources.oil);
               return ownedResources.coal + ownedResources.oil >= needed;
             } else {
+              console.log("else", ownedResources[resourceType]);
               ownedResources[resourceType] -= needed;
               return ownedResources[resourceType] >= 0;
             }
@@ -79,7 +85,6 @@ const selectNumPoweredMap = createSelector(
         })
         .reduce((currentMax, powerOption) => {
           const numPowered = powerOption.reduce((acc, plant) => acc + plant.numCities, 0);
-          console.log("POWER OPTION:", player.username, powerOption, numPowered);
           return Math.max(currentMax, numPowered);
         }, 0);
 
