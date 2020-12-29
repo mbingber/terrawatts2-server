@@ -2,7 +2,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import { selectMaxNumCities } from './cities.selectors';
 import { Phase, PlantStatus } from '../types/gameState';
 import { Color } from '../../entity/User';
-import { PlantResourceType } from '../../entity/Plant';
+import { PlantResourceType, Plant } from '../../entity/Plant';
 import { selectNumPlayers } from './players.selectors';
 import { numCitiesToEndGame } from '../utils/cityMilestones';
 import { selectPlantMap } from './props.selectors';
@@ -55,7 +55,7 @@ const selectNumPoweredMap = createSelector(
 
       const ownedResources = { ...player.resources };
 
-      const powerCapacity = getPowerset(ownedPlants)
+      const powerCapacity = getPowerset<Plant>(ownedPlants)
         .filter((plants) => {
           // leave only the options that the player has enough resources to power
           const resourcesNeeded = getResourcesNeededToPower(plants);
@@ -79,6 +79,7 @@ const selectNumPoweredMap = createSelector(
         })
         .reduce((currentMax, powerOption) => {
           const numPowered = powerOption.reduce((acc, plant) => acc + plant.numCities, 0);
+          console.log("POWER OPTION:", player.username, powerOption, numPowered);
           return Math.max(currentMax, numPowered);
         }, 0);
 
