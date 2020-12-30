@@ -8,7 +8,10 @@ export default createReducer<Player[]>([], builder => {
     .addCase(addResourcesToPlayer, (state, action) => {
       const { me, resources } = action.payload;
       console.log("IN REDUCER!, addResourcesToPlayer", me, resources, state);
-      const player = state.find(p => p.username === me);
+      const player = state.find(p => {
+        console.log("ITERATING PLAYERS STATE", p.username);
+        return p.username === me
+      });
       if (player) {
         player.resources.coal += resources.coal;
         player.resources.oil += resources.oil;
