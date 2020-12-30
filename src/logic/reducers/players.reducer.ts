@@ -15,6 +15,7 @@ export default createReducer<Player[]>([], builder => {
       if (player) {
         player.resources.coal += resources.coal;
         player.resources.oil += resources.oil;
+        console.log("ADDING OIL...", player.resources.oil, resources.oil)
         player.resources.trash += resources.trash;
         player.resources.uranium += resources.uranium;
       }
