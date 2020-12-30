@@ -77,11 +77,13 @@ const discardPlant: MoveThunk = ({ plantId, hybridChoice }) => (dispatch, getSta
 
 const buyResources: MoveThunk = ({ resources, cost }) => (dispatch, getState) => {
   // TODO: better Move typing?
+  console.log("BUYING RESOURCES", resources, cost);
   if (!resources || cost === undefined) {
     return;
   }
   
   const me = selectMe(getState());
+  console.log("ME", me);
   
   dispatch(chargePlayerMoney({ name: me, amount: cost }));
   dispatch(purchaseResourcesFromMarket(resources));

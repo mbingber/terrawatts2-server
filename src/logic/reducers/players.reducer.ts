@@ -7,6 +7,7 @@ export default createReducer<Player[]>([], builder => {
     .addCase(setPlayers, (_, action) => action.payload)
     .addCase(addResourcesToPlayer, (state, action) => {
       const { me, resources } = action.payload;
+      console.log("IN REDUCER!, addResourcesToPlayer", me, resources, state);
       const player = state.find(p => p.username === me);
       if (player) {
         player.resources.coal += resources.coal;
