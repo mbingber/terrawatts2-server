@@ -22,7 +22,7 @@ export const findGameById = async (id: number): Promise<Game> => {
     .leftJoinAndSelect("game.moves", "move")
     .where("game.id = :id", { id })
     .getOne();
-
+  game.moves.sort((a, b) => a.id - b.id);
   game.regions = game.regions.map(Number);
   return game;
 }
