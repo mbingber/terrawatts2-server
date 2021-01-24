@@ -93,7 +93,7 @@ const selectNumPoweredMap = createSelector(
         })
         .reduce((currentMax, powerOption) => {
           const numPowered = powerOption.reduce((acc, plant) => acc + plant.numCities, 0);
-          console.log("POWER OPTION", powerOption, numPowered, Math.max(currentMax, numPowered));
+          console.log("POWER OPTION", powerOption.map(p => p.rank), numPowered, Math.max(currentMax, numPowered));
           return Math.max(currentMax, numPowered);
         }, 0);
 
