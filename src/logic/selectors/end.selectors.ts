@@ -55,45 +55,33 @@ const selectNumPoweredMap = createSelector(
         })
         .map((plantId) => plantData[plantId]);
 
-      console.log("OWNED PLANTS", ownedPlants.map(plant => plant.rank));
-
       const powerCapacity = getPowerset<Plant>(ownedPlants)
         .filter((plants) => {
-          console.log("TRY SET:", plants.map(p => p.rank));
           const ownedResources = { ...player.resources };
           // leave only the options that the player has enough resources to power
           const resourcesNeeded = getResourcesNeededToPower(plants);
-          console.log("RESOURCES NEEDED:", resourcesNeeded);
           return [
             PlantResourceType.COAL,
             PlantResourceType.OIL,
             PlantResourceType.TRASH,
             PlantResourceType.URANIUM,
             PlantResourceType.HYBRID // last for a reason
-          ].every(r => {
-            const needed = resourcesNeeded[r];
+          ].every(resourceType => {
+            const needed = resourcesNeeded[resourceType];
             if (!needed) {
               return true;
-            } else if (r === PlantResourceType.HYBRID) {
-              const enough = ownedResources.coal + ownedResources.oil >= needed;
-              if (!enough) {
-                console.log("NOT ENOUGH FOR HYBRID");
-              }
+            } else if (resourceType === PlantResourceType.HYBRID) {
               return ownedResources.coal + ownedResources.oil >= needed;
             } else {
+              const r = resourceType.toLowerCase();
               ownedResources[r] = ownedResources[r] || 0;
               ownedResources[r] -= needed;
-              const enough = ownedResources[r] >= 0;
-              if (!enough) {
-                console.log("NOT ENOUGH FOR", r);
-              }
               return ownedResources[r] >= 0;
             }
           })
         })
         .reduce((currentMax, powerOption) => {
           const numPowered = powerOption.reduce((acc, plant) => acc + plant.numCities, 0);
-          console.log("POWER OPTION", powerOption.map(p => p.rank), numPowered, Math.max(currentMax, numPowered));
           return Math.max(currentMax, numPowered);
         }, 0);
 
