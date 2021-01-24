@@ -53,10 +53,10 @@ const selectNumPoweredMap = createSelector(
         })
         .map((plantId) => plantData[plantId]);
 
-      const ownedResources = { ...player.resources };
 
       const powerCapacity = getPowerset<Plant>(ownedPlants)
         .filter((plants) => {
+          const ownedResources = { ...player.resources };
           // leave only the options that the player has enough resources to power
           const resourcesNeeded = getResourcesNeededToPower(plants);
           return [
@@ -65,16 +65,16 @@ const selectNumPoweredMap = createSelector(
             PlantResourceType.TRASH,
             PlantResourceType.URANIUM,
             PlantResourceType.HYBRID // last for a reason
-          ].every(resourceType => {
-            const needed = resourcesNeeded[resourceType];
+          ].every(r => {
+            const needed = resourcesNeeded[r];
             if (!needed) {
               return true;
-            } else if (resourceType === PlantResourceType.HYBRID) {
+            } else if (r === PlantResourceType.HYBRID) {
               return ownedResources.coal + ownedResources.oil >= needed;
             } else {
-              ownedResources[resourceType] = ownedResources[resourceType] || 0;
-              ownedResources[resourceType] -= needed;
-              return ownedResources[resourceType] >= 0;
+              ownedResources[r] = ownedResources[r] || 0;
+              ownedResources[r] -= needed;
+              return ownedResources[r] >= 0;
             }
           })
         })
