@@ -36,6 +36,10 @@ export type Player = {
   money: number;
   resources: Resources;
   clockwiseOrder: number;
+  totalPlantSpend: number;
+  totalResourceSpend: number;
+  totalCitySpend: number;
+  totalEarn: number;
 }
 
 export type PlantInfo = {

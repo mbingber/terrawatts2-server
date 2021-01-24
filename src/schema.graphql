@@ -152,6 +152,10 @@ type GameOverPlayer {
   numPowered: Int!
   money: Int!
   won: Boolean!
+  totalPlantSpend: Int!
+  totalResourceSpend: Int!
+  totalCitySpend: Int!
+  totalEarn: Int!
 }
 
 type GameOverData {

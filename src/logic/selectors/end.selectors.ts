@@ -111,9 +111,7 @@ export const selectGameOverPlayerData = createSelector(
   [selectNumPoweredMap, selectPlayerOrder],
   (numPoweredMap, players) => players
     .map(player => ({
-      username: player.username,
-      color: player.color,
-      money: player.money,
+      ...player,
       numPowered: numPoweredMap[player.username],
     }))
     .sort((a, b) => {

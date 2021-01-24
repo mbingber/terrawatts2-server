@@ -1,6 +1,15 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { Player } from '../types/gameState';
-import { addResourcesToPlayer, makePlayerMoney, setPlayerResources, setPlayers } from '../actions/players.actions';
+import {
+  addResourcesToPlayer,
+  makePlayerMoney,
+  setPlayerResources,
+  setPlayers,
+  recordPlantSpend,
+  recordResourceSpend,
+  recordCitySpend,
+  recordEarn,
+} from '../actions/players.actions';
 
 export default createReducer<Player[]>([], builder => {
   builder
@@ -29,6 +38,34 @@ export default createReducer<Player[]>([], builder => {
       const player = state.find(p => p.username === me);
       if (player) {
         player.resources = resources;
+      }
+    })
+    .addCase(recordPlantSpend, (state, action) => {
+      const { me, amount } = action.payload;
+      const player = state.find(p => p.username === me);
+      if (player) {
+        player.totalPlantSpend += amount;
+      }
+    })
+    .addCase(recordResourceSpend, (state, action) => {
+      const { me, amount } = action.payload;
+      const player = state.find(p => p.username === me);
+      if (player) {
+        player.totalResourceSpend += amount;
+      }
+    })
+    .addCase(recordCitySpend, (state, action) => {
+      const { me, amount } = action.payload;
+      const player = state.find(p => p.username === me);
+      if (player) {
+        player.totalCitySpend += amount;
+      }
+    })
+    .addCase(recordEarn, (state, action) => {
+      const { me, amount } = action.payload;
+      const player = state.find(p => p.username === me);
+      if (player) {
+        player.totalEarn += amount;
       }
     });
 });

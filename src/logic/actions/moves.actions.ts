@@ -1,5 +1,5 @@
 import { purchaseResourcesFromMarket } from './resourceMarket.actions';
-import { addResourcesToPlayer, chargePlayerMoney, setPlayerResources, makePlayerMoney } from './players.actions';
+import { addResourcesToPlayer, chargePlayerMoney, setPlayerResources, makePlayerMoney, recordResourceSpend, recordCitySpend, recordEarn } from './players.actions';
 import { next } from './next.actions';
 import { MoveThunk, Thunk } from '../types/thunks';
 import { ActionType, PlantStatus } from '../types/gameState';
@@ -86,6 +86,7 @@ const buyResources: MoveThunk = ({ resources, cost }) => (dispatch, getState) =>
   dispatch(chargePlayerMoney({ name: me, amount: cost }));
   dispatch(purchaseResourcesFromMarket(resources));
   dispatch(addResourcesToPlayer({ me, resources }));
+  dispatch(recordResourceSpend({ me, amount: cost }));
   dispatch(next());
 }
 
@@ -97,6 +98,7 @@ const buyCities: MoveThunk = ({ cityIds, cost }) => (dispatch, getState) => {
   const me = selectMe(getState());
 
   dispatch(chargePlayerMoney({ name: me, amount: cost }));
+  dispatch(recordCitySpend({ me, amount: cost }));
   cityIds.forEach(cityId => {
     dispatch(occupyCity({ me, cityId }));
   });
@@ -117,6 +119,7 @@ const powerUp: MoveThunk = ({ plantIds, hybridChoice }) => (dispatch, getState, 
   dispatch(setPlayerResources({ me, resources }));
   const amount = selectRevenue(getState(), { plantList, plantIds });
   dispatch(makePlayerMoney({ name: me, amount }));
+  dispatch(recordEarn({ me, amount }));
   dispatch(next());
 }
 

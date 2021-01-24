@@ -13,3 +13,8 @@ export const setTurnOrder = (): Thunk => (dispatch, getState, { plantList }) => 
   const turnOrder = selectNewTurnOrder(getState(), { plantList });
   dispatch(setPlayers(turnOrder));
 };
+
+export const recordPlantSpend = createAction<{ me: string, amount: number }>('Record plant spend');
+export const recordResourceSpend = createAction<{ me: string, amount: number }>('Record resource spend');
+export const recordCitySpend = createAction<{ me: string, amount: number }>('Record city spend');
+export const recordEarn = createAction<{ me: string, amount: number }>('Record earn');
