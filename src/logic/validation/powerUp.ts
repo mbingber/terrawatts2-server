@@ -25,12 +25,12 @@ const powerUpValidators: Validator[] = [
   //     return !hybridChoice || choiceNeeded;
   //   },
   //   message: "You did not need to provide hybrid choice",
-  }, {
-    validate: ({ plantIds, hybridChoice }, state, { plantList }) => {
-      const choiceNeeded = selectHybridChoiceNeeded(state, { plantIds, plantList });
-      return !!hybridChoice || !choiceNeeded;
-    },
-    message: "You needed to provide hybrid choice",
+  // }, {
+  //   validate: ({ plantIds, hybridChoice }, state, { plantList }) => {
+  //     const choiceNeeded = selectHybridChoiceNeeded(state, { plantIds, plantList });
+  //     return !!hybridChoice || !choiceNeeded;
+  //   },
+  //   message: "You needed to provide hybrid choice",
   }, {
     validate: ({ plantIds, hybridChoice }, state, { plantList }) => {
       if (!hybridChoice) {
