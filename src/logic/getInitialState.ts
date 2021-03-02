@@ -25,6 +25,12 @@ const getStartingResourceMarket = (mapName: string): Resources => {
       trash: 6,
       uranium: 0
     },
+    France: {
+      coal: 24,
+      oil: 18,
+      trash: 6,
+      uranium: 8,
+    },
     default: {
       coal: 24,
       oil: 18,
@@ -130,13 +136,21 @@ export const createInitialPlants = (
     return createInitialPlantsChina(plants, numPlayers);
   }
 
-  const deck = plants.filter(p => p.rank > 10 && p.rank !== 13);
+  const deck = plants.filter(p => {
+    if (p.rank < 10) return false; // set aside initial market
+    if (p.rank === 13) return false; // set aside the 13
+    if (mapName === 'France' && p.rank === 11) return false; // set aside the 11 in France
+    return true;
+  });
 
   const removed = shuffle(deck, rand).slice(0, amountToRemove[numPlayers] + +(!!extraPlant));
 
   const plantStatusMap = plants.reduce<Record<string, PlantInfo>>((acc, plant) => {
     let status = PlantStatus.DECK;
     if (removed.includes(plant)) {
+      status = PlantStatus.REMOVED_BEFORE_START;
+    }
+    if (mapName === 'France' && plant.rank === 13) {
       status = PlantStatus.REMOVED_BEFORE_START;
     }
     if (plant.rank <= 10) {

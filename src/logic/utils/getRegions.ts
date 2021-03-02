@@ -60,7 +60,19 @@ const edgesByMap: Record<string, Record<string, boolean>> = {
     '4_5': true,
     '4_6': true,
     '5_6': true,
-  }
+  },
+  France: {
+    '1_2': true,
+    '1_3': true,
+    '1_4': true,
+    '1_5': true,
+    '1_6': true,
+    '2_3': true,
+    '2_4': true,
+    '4_5': true,
+    '5_6': true,
+    '3_6': true,
+  },
 };
 
 const numRegionsByNumPlayers: Record<number, number> = {
@@ -81,7 +93,8 @@ const perms = <T>(arr: T[]): T[][] => arr.length === 1 ?
 
 const getPotentialRegionLists = (
   edges: Record<string, boolean>,
-  numRegions: number
+  numRegions: number,
+  mapName: string,
 ): number[][] => {
   return perms([1, 2, 3, 4, 5, 6])
     .map(list => list.slice(0, numRegions))
@@ -91,6 +104,7 @@ const getPotentialRegionLists = (
     .filter((el, idx, arr) => el !== arr[idx + 1])
     .map(str => str.split('_'))
     .map(arr => arr.map(Number))
+    .filter(list => mapName !== 'France' || list.includes(1))
     .filter(list => {
       const start = list[0];
       const visited = { [start]: true };
@@ -120,7 +134,7 @@ export const getRegions = (mapName: string, numPlayers: number): number[] => {
   const edges = edgesByMap[mapName];
   const numRegions = numRegionsByNumPlayers[numPlayers];
 
-  const potentials = getPotentialRegionLists(edges, numRegions);
+  const potentials = getPotentialRegionLists(edges, numRegions, mapName);
 
   return potentials[Math.floor(Math.random() * potentials.length)];
 };

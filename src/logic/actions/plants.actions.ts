@@ -60,8 +60,9 @@ const drawPlantFromDeck = (): Thunk => (dispatch, getState, { plantList, game })
   const plantPhaseEvents = selectPlantPhaseEvents(getState());
 
   if (turn === 1 && !plantPhaseEvents.length) {
-    const thirteen = plantList.find(p => p.rank === 13) as Plant;
-    dispatch(setPlantStatus({ plantId: `${thirteen.id}`, status: PlantStatus.MARKET }));
+    const topDeckRank = game.map.name === 'France' ? 11 : 13;
+    const topDeck = plantList.find(p => p.rank === topDeckRank) as Plant;
+    dispatch(setPlantStatus({ plantId: `${topDeck.id}`, status: PlantStatus.MARKET }));
   } else {
     const deck = selectDeck(getState());
     const era = selectEra(getState());
