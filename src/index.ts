@@ -6,7 +6,7 @@ import { ApolloServer } from 'apollo-server-express';
 import { importSchema } from 'graphql-import';
 import * as jwt from 'jsonwebtoken';
 import { findGameById, getGameState, resolveMove } from './queries/findGameById';
-import { fetchMap } from './queries/fetchMap';
+import { fetchMap, saveMap } from './queries/fetchMap';
 import { createUser } from './auth/createUser';
 import { pubsub } from "./pubsub";
 import { login } from './auth/login';
@@ -55,7 +55,8 @@ const resolvers = {
     login: (_, { username, password }) => login(username, password),
     setPassword: (_, { username, password }) => setPassword(username, password),
     keepMeOnline: (_, __, { user }) => setUserOnline(user),
-    setUserPreferences: (_, { preferredColor, we }, { user }) => setUserPreferences(user, preferredColor, we)
+    setUserPreferences: (_, { preferredColor, we }, { user }) => setUserPreferences(user, preferredColor, we),
+    saveMap: (_, { mapInput }) => saveMap(mapInput),
   },
   Subscription: {
     gameStateUpdated: {

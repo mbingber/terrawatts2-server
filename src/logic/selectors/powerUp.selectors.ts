@@ -41,8 +41,9 @@ export const selectResourcesNeededToPower = createSelector(
 export const selectHybridChoiceNeeded = createSelector(
   [selectResourcesNeededToPower, selectMyResources],
   (needed, { coal, oil }) => {
-    const remaining = (coal - needed.COAL) + (oil - needed.OIL);
-    return needed.HYBRID > 0 && remaining > needed.HYBRID;
+    const { HYBRID = 0, COAL = 0, OIL = 0 } = needed;
+    const remaining = (coal - COAL) + (oil - OIL);
+    return HYBRID > 0 && remaining > HYBRID;
   }
 );
 

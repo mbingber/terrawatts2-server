@@ -23,6 +23,7 @@ type Mutation {
   setPassword(username: String!, password: String!): User
   keepMeOnline: User
   setUserPreferences(preferredColor: Color, we: Boolean): User!
+  saveMap(mapInput: MapInput!): PopulatedMap!
 }
 
 type Subscription {
@@ -163,6 +164,11 @@ type GameOverData {
   winOrder: [GameOverPlayer!]!
 }
 
+type LoginResponse {
+  token: String
+  user: User
+}
+
 input ResourcesInput {
   coal: Int
   oil: Int
@@ -175,9 +181,16 @@ input HybridChoiceInput {
   oil: Int!
 }
 
-type LoginResponse {
-  token: String
-  user: User
+input MapInput {
+  id: ID!
+  name: String!
+  cities: [CityInput!]!
+}
+
+input CityInput {
+  id: ID!
+  lat: Float!
+  lng: Float!
 }
 
 enum Phase {
