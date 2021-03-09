@@ -5,10 +5,7 @@ import {
   makePlayerMoney,
   setPlayerResources,
   setPlayers,
-  recordPlantSpend,
-  recordResourceSpend,
-  recordCitySpend,
-  recordEarn,
+  recordSpend,
 } from '../actions/players.actions';
 
 export default createReducer<Player[]>([], builder => {
@@ -40,32 +37,13 @@ export default createReducer<Player[]>([], builder => {
         player.resources = resources;
       }
     })
-    .addCase(recordPlantSpend, (state, action) => {
-      const { me, amount } = action.payload;
+    .addCase(recordSpend, (state, action) => {
+      const { me, amount, phase } = action.payload;
       const player = state.find(p => p.username === me);
       if (player) {
-        player.totalPlantSpend += amount;
-      }
-    })
-    .addCase(recordResourceSpend, (state, action) => {
-      const { me, amount } = action.payload;
-      const player = state.find(p => p.username === me);
-      if (player) {
-        player.totalResourceSpend += amount;
-      }
-    })
-    .addCase(recordCitySpend, (state, action) => {
-      const { me, amount } = action.payload;
-      const player = state.find(p => p.username === me);
-      if (player) {
-        player.totalCitySpend += amount;
-      }
-    })
-    .addCase(recordEarn, (state, action) => {
-      const { me, amount } = action.payload;
-      const player = state.find(p => p.username === me);
-      if (player) {
-        player.totalEarn += amount;
+        // assumes you spend exactly once in each phase, which is true as of now
+        // requires recording a spend of 0 when plant is passed on
+        player.spendData[phase].push(amount);
       }
     });
 });

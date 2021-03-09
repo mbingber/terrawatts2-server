@@ -64,11 +64,13 @@ const createPlayerOrder = (users: User[]): Player[] => {
         uranium: 0,
       },
       clockwiseOrder: idx,
-      totalPlantSpend: 0,
-      totalResourceSpend: 0,
-      totalCitySpend: 0,
-      totalEarn: 0,
-    }
+      spendData: {
+        [Phase.PLANT]: [],
+        [Phase.RESOURCE]: [],
+        [Phase.CITY]: [],
+        [Phase.POWER]: [],
+      },
+    };
   });
 };
 

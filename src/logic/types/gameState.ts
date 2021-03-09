@@ -36,10 +36,7 @@ export type Player = {
   money: number;
   resources: Resources;
   clockwiseOrder: number;
-  totalPlantSpend: number;
-  totalResourceSpend: number;
-  totalCitySpend: number;
-  totalEarn: number;
+  spendData: Record<Phase, number[]>;
 }
 
 export type PlantInfo = {

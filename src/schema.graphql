@@ -150,13 +150,18 @@ type Game {
 type GameOverPlayer {
   username: String!
   color: Color!
-  numPowered: Int!
   money: Int!
+  numPowered: Int!
+  numCities: Int!
   won: Boolean!
-  totalPlantSpend: Int!
-  totalResourceSpend: Int!
-  totalCitySpend: Int!
-  totalEarn: Int!
+  spendData: SpendData!
+}
+
+type SpendData {
+  PLANT: [Int!]!
+  RESOURCE: [Int!]!
+  CITY: [Int!]!
+  POWER: [Int!]!
 }
 
 type GameOverData {

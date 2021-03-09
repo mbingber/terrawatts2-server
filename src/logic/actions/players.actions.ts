@@ -1,5 +1,5 @@
 import { createAction } from '@reduxjs/toolkit';
-import { Resources, Player } from "../types/gameState";
+import { Resources, Player, Phase } from "../types/gameState";
 import { Thunk } from "../types/thunks";
 import { selectNewTurnOrder } from "../selectors/players.selectors";
 
@@ -14,7 +14,10 @@ export const setTurnOrder = (): Thunk => (dispatch, getState, { plantList }) => 
   dispatch(setPlayers(turnOrder));
 };
 
-export const recordPlantSpend = createAction<{ me: string, amount: number }>('Record plant spend');
-export const recordResourceSpend = createAction<{ me: string, amount: number }>('Record resource spend');
-export const recordCitySpend = createAction<{ me: string, amount: number }>('Record city spend');
-export const recordEarn = createAction<{ me: string, amount: number }>('Record earn');
+type SpendRecord = {
+  me: string;
+  amount: number;
+  phase: Phase;
+}
+
+export const recordSpend = createAction<SpendRecord>('Record spend');

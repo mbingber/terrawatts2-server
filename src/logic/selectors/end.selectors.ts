@@ -1,7 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { selectMaxNumCities } from './cities.selectors';
-import { Phase, PlantStatus } from '../types/gameState';
-import { Color } from '../../entity/User';
+import { Phase, PlantStatus, Player } from '../types/gameState';
 import { PlantResourceType, Plant } from '../../entity/Plant';
 import { selectNumPlayers } from './players.selectors';
 import { numCitiesToEndGame } from '../utils/cityMilestones';
@@ -14,11 +13,9 @@ import {
 } from './info.selectors';
 import { getResourcesNeededToPower } from './powerUp.selectors';
 
-export type GameOverPlayer = {
-  username: string;
-  color: Color;
+export type GameOverPlayer = Player & {
   numPowered: number;
-  money: number;
+  numCities: number;
   won: boolean;
 }
 
@@ -39,13 +36,11 @@ const getPowerset = <T>(list: T[]): T[][] => list
 const selectNumPoweredMap = createSelector(
   [selectPlayerOrder, selectCities, selectPlantMap, selectPlants],
   (players, cities, plantData, plantStatusMap) => {
-    return players.reduce((acc, player) => {
-      console.log("PLAYER:", player.username);
+    return players.reduce<Record<string, { numPowered: number, numCities: number }>>((acc, player) => {
       // TODO: abstract from cities.selectors
       const numCities = Object.values(cities)
         .filter(occupants => occupants.includes(player.username))
         .length;
-      console.log("NUM CITIES:", numCities);
 
       // TODO: abstract from plants.selectors
       const ownedPlants = Object.keys(plantStatusMap)
@@ -85,7 +80,10 @@ const selectNumPoweredMap = createSelector(
           return Math.max(currentMax, numPowered);
         }, 0);
 
-      acc[player.username] = Math.min(powerCapacity, numCities);      
+      acc[player.username] = {
+        numPowered: Math.min(powerCapacity, numCities),
+        numCities,
+      };
       return acc;
     }, {});
   }
@@ -109,10 +107,10 @@ const playerWon = (
 
 export const selectGameOverPlayerData = createSelector(
   [selectNumPoweredMap, selectPlayerOrder],
-  (numPoweredMap, players) => players
+  (numPoweredMap, players): GameOverPlayer[] => players
     .map(player => ({
       ...player,
-      numPowered: numPoweredMap[player.username],
+      ...numPoweredMap[player.username],
     }))
     .sort((a, b) => {
       if (a.numPowered === b.numPowered) {

@@ -1,7 +1,7 @@
 import { PlantStatus, ActionType, Phase } from "../types/gameState";
 import { createAction } from '@reduxjs/toolkit';
 import { Thunk } from "../types/thunks";
-import { chargePlayerMoney, recordPlantSpend } from "./players.actions";
+import { chargePlayerMoney, recordSpend } from "./players.actions";
 import { recordPlantPhaseEvent } from "./plantPhaseEvents.actions";
 import { next } from "./next.actions";
 import { setActionType, setActiveUser, setEra } from "./info.actions";
@@ -79,7 +79,7 @@ export const obtainPlant = (plantId: string, bid: number, owner: string): Thunk 
   dispatch(setPlantStatus({ plantId, status: PlantStatus.OWNED, owner }));
 
   dispatch(chargePlayerMoney({ name: owner, amount: bid }));
-  dispatch(recordPlantSpend({ me: owner, amount: bid }));
+  dispatch(recordSpend({ me: owner, amount: bid, phase: Phase.PLANT }));
   if (game.map.name === 'China') {
     if (selectEra(getState()) === 3) {
       dispatch(setChinaEra3Market());
