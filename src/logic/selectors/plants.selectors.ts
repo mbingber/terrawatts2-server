@@ -100,11 +100,34 @@ const selectPlantMarket = createSelector(
 
 export const selectAvailablePlants = createSelector(
   [selectPlantMarket, selectPlantMap, selectEra, selectMapName],
-  (market, plantMap, era, mapName) => market
-    .map(id => plantMap[id])
-    .sort((p, q) => p.rank - q.rank)
-    .map(plant => plant.id)
-    .slice(0, era < 3 && mapName !== 'China' ? 4 : 6)
+  (market, plantMap, era, mapName) => {
+    const plantMarket = market
+      .map(id => plantMap[id])
+      .sort((p, q) => p.rank - q.rank);
+
+    const isNorthernEuropeSevenSpecialCase = (
+      mapName === 'NorthernEurope' &&
+      plantMarket.length > 4 &&
+      plantMarket[4].rank === 7 &&
+      plantMarket[4].resourceType === PlantResourceType.WIND
+    );
+
+    let numAvailable = 4;
+
+    if (isNorthernEuropeSevenSpecialCase) {
+      numAvailable = 5;
+    }
+
+    if (mapName === 'China' || era === 3) {
+      numAvailable = plantMarket.length;
+    }
+
+    return market
+      .map(id => plantMap[id])
+      .sort((p, q) => p.rank - q.rank)
+      .slice(0, numAvailable)
+      .map(plant => plant.id);
+  }
 );
 
 export const selectPlantMarketLength = createSelector(selectPlantMarket, market => market.length);
