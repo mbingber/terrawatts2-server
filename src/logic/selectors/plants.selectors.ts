@@ -105,12 +105,16 @@ export const selectAvailablePlants = createSelector(
       .map(id => plantMap[id])
       .sort((p, q) => p.rank - q.rank);
 
-    const isNorthernEuropeSevenSpecialCase = (
-      mapName === 'NorthernEurope' &&
-      plantMarket.length > 4 &&
-      plantMarket[4].rank === 7 &&
-      plantMarket[4].resourceType === PlantResourceType.WIND
-    );
+    let isNorthernEuropeSevenSpecialCase = false;
+    if (mapName === 'Northern Europe') {
+      const sevenWind = plantMarket.some(p => p.rank === 7 && p.resourceType === PlantResourceType.WIND);
+      if (sevenWind) {
+        const isInFifth = [3, 4, 5, 6].every(rank => plantMarket.some(p => p.rank === rank));
+        if (isInFifth) {
+          isNorthernEuropeSevenSpecialCase = true;
+        }
+      }
+    }
 
     let numAvailable = 4;
 
