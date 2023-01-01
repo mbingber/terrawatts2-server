@@ -1,4 +1,4 @@
-import { createAction } from "redux-act";
+import { createAction } from '@reduxjs/toolkit';
 import { Resources } from "../types/gameState";
 
 export const setResourceMarket = createAction<Resources>('Restock resources');

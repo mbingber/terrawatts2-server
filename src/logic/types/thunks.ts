@@ -1,11 +1,10 @@
-import { ThunkAction } from "redux-thunk";
-import { GameState } from "./gameState";
-import { AnyAction } from "redux";
-import { Game } from "../../entity/Game";
-import { Plant } from "../../entity/Plant";
-import { City } from "../../entity/City";
-import { User } from "../../entity/User";
-import { Move } from "../../entity/Move";
+import { AnyAction, ThunkAction } from '@reduxjs/toolkit';
+import { GameState } from '../rootReducer';
+import { Game } from '../../entity/Game';
+import { Plant } from '../../entity/Plant';
+import { City } from '../../entity/City';
+import { User } from '../../entity/User';
+import { Move } from '../../entity/Move';
 
 export type Context = {
   game: Game;

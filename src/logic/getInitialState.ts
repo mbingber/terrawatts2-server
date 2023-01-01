@@ -1,8 +1,9 @@
-import { GameState, Phase, ActionType, Player, Color, Resources, PlantInfo, PlantStatus } from "./types/gameState";
-import { shuffle } from "./utils/shuffle";
-import { Context } from "./types/thunks";
-import { User } from "../entity/User";
-import { Plant } from "../entity/Plant";
+import { Phase, ActionType, Player, Resources, PlantInfo, PlantStatus } from './types/gameState';
+import { GameState } from './rootReducer';
+import { shuffle } from './utils/shuffle';
+import { Context } from './types/thunks';
+import { User, Color } from '../entity/User';
+import { Plant } from '../entity/Plant';
 
 const getStartingResourceMarket = (mapName: string): Resources => {
   const startingMarkets: Record<string, Resources> = {
@@ -23,6 +24,12 @@ const getStartingResourceMarket = (mapName: string): Resources => {
       oil: 12,
       trash: 6,
       uranium: 0
+    },
+    France: {
+      coal: 24,
+      oil: 18,
+      trash: 6,
+      uranium: 8,
     },
     default: {
       coal: 24,
@@ -57,7 +64,13 @@ const createPlayerOrder = (users: User[]): Player[] => {
         uranium: 0,
       },
       clockwiseOrder: idx,
-    }
+      spendData: {
+        [Phase.PLANT]: [],
+        [Phase.RESOURCE]: [],
+        [Phase.CITY]: [],
+        [Phase.POWER]: [],
+      },
+    };
   });
 };
 
@@ -83,7 +96,7 @@ const createInitialPlantsChina = (plants: Plant[], numPlayers: number): Record<n
     let status = PlantStatus.DECK;
 
     if (chinaRemoval[numPlayers].includes(plant.rank)) {
-      status = PlantStatus.REMOVED_BEFORE_START;
+      status = PlantStatus.REMOVED_BEFORE_START_FIXED;
     } else if (marketSize < numPlayers) {
       status = PlantStatus.MARKET;
       marketSize++;
@@ -118,7 +131,6 @@ export const createInitialPlants = (
   const plants: Plant[] = Object.values(rankToPlants).map(plantSubset => {
     const matchedPlant = plantSubset.find(p => p.mapName === mapName && regions.includes(p.region));
     const defaultPlant = plantSubset.find(p => !p.mapName) as Plant;
-
     return matchedPlant || defaultPlant;
   }).filter(x => !!x);
 
@@ -126,13 +138,21 @@ export const createInitialPlants = (
     return createInitialPlantsChina(plants, numPlayers);
   }
 
-  const deck = plants.filter(p => p.rank > 10 && p.rank !== 13);
+  const deck = plants.filter(p => {
+    if (p.rank < 10) return false; // set aside initial market
+    if (p.rank === 13) return false; // set aside the 13
+    if (mapName === 'France' && p.rank === 11) return false; // set aside the 11 in France
+    return true;
+  });
 
   const removed = shuffle(deck, rand).slice(0, amountToRemove[numPlayers] + +(!!extraPlant));
 
   const plantStatusMap = plants.reduce<Record<string, PlantInfo>>((acc, plant) => {
     let status = PlantStatus.DECK;
     if (removed.includes(plant)) {
+      status = PlantStatus.REMOVED_BEFORE_START;
+    }
+    if (mapName === 'France' && plant.rank === 13) {
       status = PlantStatus.REMOVED_BEFORE_START;
     }
     if (plant.rank <= 10) {

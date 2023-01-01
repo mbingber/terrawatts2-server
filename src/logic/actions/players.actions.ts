@@ -1,5 +1,5 @@
-import { createAction } from "redux-act";
-import { Resources, Player } from "../types/gameState";
+import { createAction } from '@reduxjs/toolkit';
+import { Resources, Player, Phase } from "../types/gameState";
 import { Thunk } from "../types/thunks";
 import { selectNewTurnOrder } from "../selectors/players.selectors";
 
@@ -13,3 +13,11 @@ export const setTurnOrder = (): Thunk => (dispatch, getState, { plantList }) => 
   const turnOrder = selectNewTurnOrder(getState(), { plantList });
   dispatch(setPlayers(turnOrder));
 };
+
+type SpendRecord = {
+  me: string;
+  amount: number;
+  phase: Phase;
+}
+
+export const recordSpend = createAction<SpendRecord>('Record spend');

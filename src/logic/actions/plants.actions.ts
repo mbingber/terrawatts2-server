@@ -1,7 +1,7 @@
 import { PlantStatus, ActionType, Phase } from "../types/gameState";
-import { createAction } from "redux-act";
+import { createAction } from '@reduxjs/toolkit';
 import { Thunk } from "../types/thunks";
-import { chargePlayerMoney } from "./players.actions";
+import { chargePlayerMoney, recordSpend } from "./players.actions";
 import { recordPlantPhaseEvent } from "./plantPhaseEvents.actions";
 import { next } from "./next.actions";
 import { setActionType, setActiveUser, setEra } from "./info.actions";
@@ -60,8 +60,9 @@ const drawPlantFromDeck = (): Thunk => (dispatch, getState, { plantList, game })
   const plantPhaseEvents = selectPlantPhaseEvents(getState());
 
   if (turn === 1 && !plantPhaseEvents.length) {
-    const thirteen = plantList.find(p => p.rank === 13) as Plant;
-    dispatch(setPlantStatus({ plantId: `${thirteen.id}`, status: PlantStatus.MARKET }));
+    const topDeckRank = game.map.name === 'France' ? 11 : 13;
+    const topDeck = plantList.find(p => p.rank === topDeckRank) as Plant;
+    dispatch(setPlantStatus({ plantId: `${topDeck.id}`, status: PlantStatus.MARKET }));
   } else {
     const deck = selectDeck(getState());
     const era = selectEra(getState());
@@ -78,7 +79,7 @@ export const obtainPlant = (plantId: string, bid: number, owner: string): Thunk 
   dispatch(setPlantStatus({ plantId, status: PlantStatus.OWNED, owner }));
 
   dispatch(chargePlayerMoney({ name: owner, amount: bid }));
-
+  dispatch(recordSpend({ me: owner, amount: bid, phase: Phase.PLANT }));
   if (game.map.name === 'China') {
     if (selectEra(getState()) === 3) {
       dispatch(setChinaEra3Market());

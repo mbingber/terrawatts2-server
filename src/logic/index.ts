@@ -1,36 +1,27 @@
-import { createStore, AnyAction, Reducer, applyMiddleware, combineReducers, Store } from 'redux';
-import { GameState } from "./types/gameState";
-import thunk from 'redux-thunk';
-import { getInitialState } from "./getInitialState";
-import { makeMove } from "./actions/moves.actions";
-import auction from './reducers/auction.reducer';
-import cities from './reducers/cities.reducer';
-import info from './reducers/info.reducer';
-import plantPhaseEvents from './reducers/plantPhaseEvents.reducer';
-import plants from './reducers/plants.reducer';
-import playerOrder from './reducers/players.reducer';
-import resourceMarket from './reducers/resourceMarket.reducer';
+import { configureStore, getDefaultMiddleware, Reducer, AnyAction, Store } from '@reduxjs/toolkit';
+import { getInitialState } from './getInitialState';
+import { GameState, gameStateReducer } from './rootReducer';
+import { makeMove } from './actions/moves.actions';
 import { Context } from './types/thunks';
 import { validateMove } from './validation';
 import { Move } from '../entity/Move';
 
-export const gameStateReducer: Reducer<GameState, AnyAction> = combineReducers({
-  auction,
-  cities,
-  info,
-  plantPhaseEvents,
-  plants,
-  playerOrder,
-  resourceMarket
-});
-
 const executeMove = (move: Move, store) => {
-  store.dispatch(makeMove(move));
+  if (!move.isDeleted) {
+    store.dispatch(makeMove(move));
+  }
 };
 
-export const getGenericStore = <T>(context: Context, reducer: Reducer<T, AnyAction>, getInitialState: (c: Context) => T): Store<T, AnyAction> => {
-  const initialState = getInitialState(context);
-  const store = createStore(reducer, initialState as any, applyMiddleware(thunk.withExtraArgument(context)));
+export const getGenericStore = <T>(
+  context: Context,
+  reducer: Reducer<T, AnyAction>,
+  getInitialState: (c: Context) => T
+): Store<T, AnyAction> => {
+  const store = configureStore({
+    reducer,
+    preloadedState: getInitialState(context),
+    middleware: getDefaultMiddleware({ thunk: { extraArgument: context } }),
+  });
   context.game.moves.forEach(move => executeMove(move, store));
   return store;
 };

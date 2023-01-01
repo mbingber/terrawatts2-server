@@ -1,4 +1,4 @@
-import { createSelector } from "reselect";
+import { createSelector } from '@reduxjs/toolkit';
 import { selectPlantPhaseEvents, selectPlants, selectEra } from "./info.selectors";
 import { selectNumPlayers, selectMyResources, selectMe } from "./players.selectors";
 import { PlantStatus } from "../types/gameState";
@@ -13,10 +13,10 @@ export const selectGetsPlantAtFace = createSelector(
 export const selectPlayerPlantIds = createSelector(
   [selectPlants, selectMe, (_, props) => props.username],
   (plants, me, username) => Object.keys(plants)
-  .filter((plantId) => {
-    const { status, owner } = plants[plantId];
-    return status === PlantStatus.OWNED && owner === (username || me);
-  })
+    .filter((plantId) => {
+      const { status, owner } = plants[plantId];
+      return status === PlantStatus.OWNED && owner === (username || me);
+    })
 );
 
 export const selectMustDiscardPlant = createSelector(
@@ -100,11 +100,38 @@ const selectPlantMarket = createSelector(
 
 export const selectAvailablePlants = createSelector(
   [selectPlantMarket, selectPlantMap, selectEra, selectMapName],
-  (market, plantMap, era, mapName) => market
-    .map(id => plantMap[id])
-    .sort((p, q) => p.rank - q.rank)
-    .map(plant => plant.id)
-    .slice(0, era < 3 && mapName !== 'China' ? 4 : 6)
+  (market, plantMap, era, mapName) => {
+    const plantMarket = market
+      .map(id => plantMap[id])
+      .sort((p, q) => p.rank - q.rank);
+
+    let isNorthernEuropeSevenSpecialCase = false;
+    if (mapName === 'Northern Europe') {
+      const sevenWind = plantMarket.some(p => p.rank === 7 && p.resourceType === PlantResourceType.WIND);
+      if (sevenWind) {
+        const isInFifth = [3, 4, 5, 6].every(rank => plantMarket.some(p => p.rank === rank));
+        if (isInFifth) {
+          isNorthernEuropeSevenSpecialCase = true;
+        }
+      }
+    }
+
+    let numAvailable = 4;
+
+    if (isNorthernEuropeSevenSpecialCase) {
+      numAvailable = 5;
+    }
+
+    if (mapName === 'China' || era === 3) {
+      numAvailable = plantMarket.length;
+    }
+
+    return market
+      .map(id => plantMap[id])
+      .sort((p, q) => p.rank - q.rank)
+      .slice(0, numAvailable)
+      .map(plant => plant.id);
+  }
 );
 
 export const selectPlantMarketLength = createSelector(selectPlantMarket, market => market.length);

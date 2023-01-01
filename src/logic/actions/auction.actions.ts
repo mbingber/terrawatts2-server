@@ -1,5 +1,5 @@
-import { createAction } from "redux-act";
-import { Auction } from "../types/gameState";
+import { createAction } from '@reduxjs/toolkit';
+import { Auction } from '../types/gameState';
 
 export const startAuction = createAction<Auction>('Start auction');
 export const setAuctionBid = createAction<number>('Set auction bid');

@@ -5,7 +5,7 @@ import { Plant } from "../entity/Plant";
 import { User } from "../entity/User";
 import { Context } from "../logic/types/thunks";
 import { fetchMap } from "./fetchMap";
-import { GameState } from "../logic/types/gameState";
+import { GameState } from "../logic/rootReducer";
 import { getStore, attemptMove } from "../logic";
 import { Move, ActionType } from "../entity/Move";
 import { pubsub } from "../pubsub";
@@ -15,16 +15,19 @@ import { getCityCostHelper } from "./getCityCostHelper";
 export const findGameById = async (id: number): Promise<Game> => {
   const gameRepository = getRepository(Game);
 
-  return gameRepository
+  const game = await gameRepository
     .createQueryBuilder("game")
     .leftJoinAndSelect("game.map", "map")
     .leftJoinAndSelect("game.users", "user")
     .leftJoinAndSelect("game.moves", "move")
     .where("game.id = :id", { id })
     .getOne();
+  game.moves.sort((a, b) => a.id - b.id);
+  game.regions = game.regions.map(Number);
+  return game;
 }
 
-const buildContext = async (game: Game, user?: User, includeCityCostHelper: boolean = false): Promise<Context> => {
+export const buildContext = async (game: Game, user?: User, includeCityCostHelper: boolean = false): Promise<Context> => {
   const plantRepository = getRepository(Plant);
 
   const plantList = await plantRepository.find();

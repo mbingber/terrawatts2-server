@@ -1,6 +1,6 @@
-import { createSelector } from "reselect";
-import { selectPlayerOrder, selectCities } from "./info.selectors";
-import { selectMe } from "./players.selectors";
+import { createSelector } from '@reduxjs/toolkit';
+import { selectPlayerOrder, selectCities } from './info.selectors';
+import { selectMe } from './players.selectors';
 
 export const selectMaxNumCities = createSelector(
   [selectPlayerOrder, selectCities],

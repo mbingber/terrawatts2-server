@@ -1,3 +1,5 @@
+import { Color } from '../../entity/User';
+
 export enum Phase {
   PLANT = 'PLANT',
   RESOURCE = 'RESOURCE',
@@ -14,17 +16,9 @@ export enum ActionType {
   POWER_UP = 'POWER_UP'
 }
 
-export enum Color {
-  BLUE = 'BLUE',
-  RED = 'RED',
-  YELLOW = 'YELLOW',
-  GREEN = 'GREEN',
-  PURPLE = 'PURPLE',
-  BLACK = 'BLACK'
-}
-
 export enum PlantStatus {
   REMOVED_BEFORE_START = 'REMOVED_BEFORE_START',
+  REMOVED_BEFORE_START_FIXED = 'REMOVED_BEFORE_START_FIXED', // i.e. China
   DECK = 'DECK',
   MARKET = 'MARKET',
   DISCARDED = 'DISCARDED',
@@ -42,6 +36,7 @@ export type Player = {
   money: number;
   resources: Resources;
   clockwiseOrder: number;
+  spendData: Record<Phase, number[]>;
 }
 
 export type PlantInfo = {
@@ -63,20 +58,11 @@ export type Info = {
   phase: Phase;
   actionType: ActionType;
   activeUser: string;
+  
 }
 
 export type PlantPhaseEvent = {
   plantId?: string;
   cost?: number;
   username: string;
-}
-
-export type GameState = {
-  info: Info;
-  resourceMarket: Resources;
-  playerOrder: Player[];
-  plants: Record<string, PlantInfo>; // key is plant id from DB
-  cities: Record<string, string[]>; // key is city id from DB, value is array of usernames
-  auction: Auction | null;
-  plantPhaseEvents: PlantPhaseEvent[];
 }

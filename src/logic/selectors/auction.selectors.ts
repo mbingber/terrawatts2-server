@@ -1,4 +1,4 @@
-import { createSelector } from "reselect";
+import { createSelector } from '@reduxjs/toolkit';
 import { selectPlayerOrder, selectPlantPhaseEvents, selectAuction } from "./info.selectors";
 import { selectMe } from "./players.selectors";
 

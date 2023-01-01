@@ -1,5 +1,6 @@
 import { Move } from '../../entity/Move';
-import { GameState, ActionType } from '../types/gameState';
+import { ActionType } from '../types/gameState';
+import { GameState } from '../rootReducer';
 import { Context } from '../types/thunks';
 import { Validator } from './validator';
 import global from './global';

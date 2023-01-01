@@ -1,12 +1,11 @@
-import { createReducer } from "redux-act";
-import { PlantInfo } from "../types/gameState";
-import { setPlantStatus } from "../actions/plants.actions";
+import { createReducer } from '@reduxjs/toolkit';
+import { PlantInfo } from '../types/gameState';
+import { setPlantStatus } from '../actions/plants.actions';
 
-const reducer = createReducer<Record<number, PlantInfo>>({}, null);
-
-reducer.on(setPlantStatus, (plants, { plantId, status, owner = null }) => ({
-  ...plants,
-  [plantId]: { status, owner },
-}));
-
-export default reducer;
+export default createReducer<Record<number, PlantInfo>>({}, builder => {
+  builder
+    .addCase(setPlantStatus, (state, action) => {
+      const { plantId, status, owner = null } = action.payload;
+      state[plantId] = { status, owner };
+    });
+});

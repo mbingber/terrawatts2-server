@@ -16,6 +16,13 @@ export class City {
   @Column({ type: 'float', nullable: true })
   lng: number;
 
+  // originalLat and originalLng are not saved until a change is made
+  @Column({ type: 'float', nullable: true })
+  originalLat: number;
+
+  @Column({ type: 'float', nullable: true })
+  originalLng: number;
+
   @Column()
   region: number;
 

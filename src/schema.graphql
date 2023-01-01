@@ -1,5 +1,6 @@
 type Query {
   getGame(id: ID!): Game
+  getGameOverData(id: ID!): GameOverData
   fetchMap(mapName: String!, regions: [Int]): PopulatedMap!
   fetchPlants: [Plant!]!
   getRevenues: [Int!]!
@@ -16,11 +17,13 @@ type Mutation {
   buyResources(gameId: ID!, resources: ResourcesInput!, cost: Int!): GameState!
   buyCities(gameId: ID!, cityIds: [String!]!, cost: Int!): GameState!
   powerUp(gameId: ID!, plantIds: [String!]!, hybridChoice: HybridChoiceInput): GameState!
+  undo(gameId: ID!): GameState!
   createUser(username: String!, password: String!, preferredColor: Color, we: Boolean!): User
   login(username: String!, password: String!): LoginResponse!
   setPassword(username: String!, password: String!): User
   keepMeOnline: User
   setUserPreferences(preferredColor: Color, we: Boolean): User!
+  saveMap(mapInput: MapInput!): PopulatedMap!
 }
 
 type Subscription {
@@ -52,6 +55,7 @@ type GameState {
   cityList: [CityInstance!]!
   auction: Auction
   plantPhaseEvents: [PlantPhaseEvent!]!
+  isOver: Boolean!
 }
 
 type GameStateInfo {
@@ -143,6 +147,33 @@ type Game {
   state: GameState
 }
 
+type GameOverPlayer {
+  username: String!
+  color: Color!
+  money: Int!
+  numPowered: Int!
+  numCities: Int!
+  won: Boolean!
+  spendData: SpendData!
+}
+
+type SpendData {
+  PLANT: [Int!]!
+  RESOURCE: [Int!]!
+  CITY: [Int!]!
+  POWER: [Int!]!
+}
+
+type GameOverData {
+  isOver: Boolean!
+  winOrder: [GameOverPlayer!]!
+}
+
+type LoginResponse {
+  token: String
+  user: User
+}
+
 input ResourcesInput {
   coal: Int
   oil: Int
@@ -155,9 +186,16 @@ input HybridChoiceInput {
   oil: Int!
 }
 
-type LoginResponse {
-  token: String
-  user: User
+input MapInput {
+  id: ID!
+  name: String!
+  cities: [CityInput!]!
+}
+
+input CityInput {
+  id: ID!
+  lat: Float!
+  lng: Float!
 }
 
 enum Phase {

@@ -6,7 +6,7 @@ import { ApolloServer } from 'apollo-server-express';
 import { importSchema } from 'graphql-import';
 import * as jwt from 'jsonwebtoken';
 import { findGameById, getGameState, resolveMove } from './queries/findGameById';
-import { fetchMap } from './queries/fetchMap';
+import { fetchMap, saveMap } from './queries/fetchMap';
 import { createUser } from './auth/createUser';
 import { pubsub } from "./pubsub";
 import { login } from './auth/login';
@@ -19,11 +19,14 @@ import { createGame } from './queries/createGame';
 import { cashMoney } from './logic/utils/makeMoney';
 import { ActionType } from './entity/Move';
 import { getCityCostHelper } from './queries/getCityCostHelper';
+import { deleteLastMove } from './queries/deleteLastMove';
 import { getRestockRatesForAllEras } from './logic/utils/restockRates';
 import { numCitiesToStartEra2, numCitiesToEndGame } from './logic/utils/cityMilestones';
 import { fetchPlants } from './queries/fetchPlants';
-import { GameState, PlantStatus, PlantInfo } from './logic/types/gameState';
-import { Game } from './entity/Game';
+import { PlantStatus, PlantInfo } from './logic/types/gameState';
+import { GameState } from './logic/rootReducer';
+import { selectIsGameOver } from './logic/selectors/end.selectors';
+import { getGameOverData } from './queries/getGameOverData';
 
 const takeAction = (actionType: ActionType) => (_, args, { user }) => resolveMove(args.gameId, user, { ...args, actionType })
 const filterPlantStatus = (plants: Record<string, PlantInfo>, status: PlantStatus) => Object.keys(plants).filter(id => plants[id].status === status)
@@ -31,6 +34,7 @@ const filterPlantStatus = (plants: Record<string, PlantInfo>, status: PlantStatu
 const resolvers = {
   Query: {
     getGame: (_, { id }) => findGameById(id),
+    getGameOverData: (_, { id }) => getGameOverData(id),
     fetchMap: (_, { mapName, regions }) => fetchMap(mapName, regions),
     fetchPlants: () => fetchPlants(),
     getRevenues: () => cashMoney,
@@ -46,11 +50,13 @@ const resolvers = {
     buyResources: takeAction(ActionType.BUY_RESOURCES),
     buyCities: takeAction(ActionType.BUY_CITIES),
     powerUp: takeAction(ActionType.POWER_UP),
+    undo: (_, { gameId }) => deleteLastMove(gameId),
     createUser: (_, { username, password, preferredColor, we }) => createUser(username, password, preferredColor, we),
     login: (_, { username, password }) => login(username, password),
     setPassword: (_, { username, password }) => setPassword(username, password),
     keepMeOnline: (_, __, { user }) => setUserOnline(user),
-    setUserPreferences: (_, { preferredColor, we }, { user }) => setUserPreferences(user, preferredColor, we)
+    setUserPreferences: (_, { preferredColor, we }, { user }) => setUserPreferences(user, preferredColor, we),
+    saveMap: (_, { mapInput }) => saveMap(mapInput),
   },
   Subscription: {
     gameStateUpdated: {
@@ -97,6 +103,11 @@ const resolvers = {
     possibleDeck: ({ plants, info: { era } }: GameState) => Object.keys(plants).filter(id => {
       const { status } = plants[id];
 
+      if (status === PlantStatus.REMOVED_BEFORE_START_FIXED) {
+        // the plants removed in the China rules should not get sent because they are not random
+        return false;
+      }
+
       if (status === PlantStatus.DECK) {
         return true;
       }
@@ -111,6 +122,7 @@ const resolvers = {
       cityId,
       occupants: cities[cityId] || []
     })),
+    isOver: (state: GameState) => selectIsGameOver(state)
   }
 };
 

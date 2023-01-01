@@ -1,10 +1,10 @@
-import { Validator } from "./validator";
-import { selectMyMoney, selectMe } from "../selectors/players.selectors";
-import { selectEra, selectCities } from "../selectors/info.selectors";
-import { GameState } from "../types/gameState";
-import { selectMyCities } from "../selectors/cities.selectors";
-import { Context } from "../types/thunks";
-import { Move } from "../../entity/Move";
+import { Validator } from './validator';
+import { selectMyMoney, selectMe } from '../selectors/players.selectors';
+import { selectEra, selectCities } from '../selectors/info.selectors';
+import { GameState } from '../rootReducer';
+import { selectMyCities } from '../selectors/cities.selectors';
+import { Context } from '../types/thunks';
+import { Move } from '../../entity/Move';
 
 export const cityCost = ({ cityIds }: Move, state: GameState, context: Context): number => {
   if (!cityIds) {

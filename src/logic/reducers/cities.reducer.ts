@@ -1,11 +1,11 @@
-import { createReducer } from "redux-act";
+import { createReducer } from '@reduxjs/toolkit';
 import { occupyCity } from "../actions/cities.actions";
 
-const reducer = createReducer<Record<string, string[]>>({}, null);
-
-reducer.on(occupyCity, (cities, { cityId, me }) => ({
-  ...cities,
-  [cityId]: [...(cities[cityId] || []), me],
-}));
-
-export default reducer;
+export default createReducer<Record<string, string[]>>({}, builder => {
+  builder
+    .addCase(occupyCity, (state, action) => {
+      const { cityId, me } = action.payload;
+      state[cityId] = state[cityId] || [];
+      state[cityId].push(me);
+    });
+});
